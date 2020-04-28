@@ -1,6 +1,6 @@
 #!groovy
-#manual https://jenkins.io/doc/book/pipeline/
-#check slave properties
+//manual https://jenkins.io/doc/book/pipeline/
+//check slave properties
 properties ([disableConcurrentBuilds()])
 
 pipeline {

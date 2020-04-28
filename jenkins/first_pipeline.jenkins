@@ -1,0 +1,25 @@
+#!groovy
+#manual https://jenkins.io/doc/book/pipeline/
+#check slave properties
+properties ([disableConcurrentBuilds()])
+
+pipeline {
+    agent {
+        label 'master'
+    }
+
+    options {
+        buildDiscarder (logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
+        timestamps ()
+    }
+    stages {
+        stage ("First step"){
+            steps{
+                sh 'ssh root@slave \'hostname\''    
+            }
+            
+        }
+
+    }
+
+}

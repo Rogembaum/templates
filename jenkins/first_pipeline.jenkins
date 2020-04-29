@@ -19,6 +19,12 @@ pipeline {
             }
             
         }
+        stage ("Second step"){
+            steps{
+                sh 'ssh root@slave \'uptime\''    
+            }
+          
+        }
 
     }
 

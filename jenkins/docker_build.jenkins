@@ -43,5 +43,12 @@ pipeline {
                 }
             }
         }
+
+        stage('Remove Unused Docker image') {
+            steps{
+                echo "===================Remove Unused Docker image==================="
+                sh "docker rmi rogembaum/cowsay:latest"
+            }
+        }
    }
 }

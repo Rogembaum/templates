@@ -1,0 +1,25 @@
+version: "3"
+services:
+
+  identidock:
+    image: rogembaum/identidock:0.3
+    ports:
+     - "5000:5000"
+     - "9090:9090"
+     - "9191:9191"
+    environment:
+     ENV: 'PROD'
+    volumes:
+     - ./app:/app
+    links:
+     - dnmonster
+     - redis
+    depends_on:
+      - dnmonster
+      - redis
+
+  dnmonster:
+    image: amouat/dnmonster:1.0
+
+  redis:
+    image: redis:3.0

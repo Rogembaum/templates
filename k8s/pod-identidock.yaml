@@ -1,0 +1,8 @@
+apiVersion : v1
+kind : Pod
+metadata:
+  name: identidock
+spec:
+  containers:
+    - name : container-identidock
+      image: rogembaum/identidock:0.3

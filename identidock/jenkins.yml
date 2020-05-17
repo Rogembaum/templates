@@ -2,15 +2,11 @@ version: "3"
 services:
 
   identidock:
-    image: rogembaum/identidock:0.3
-    ports:
-     - "5000:5000"
-     - "9090:9090"
-     - "9191:9191"
+    build: .
+    expose:
+     - "9090"
     environment:
-     ENV: 'UNIT'
-    volumes:
-     - ./app:/app
+     ENV: 'PROD'
     links:
      - dnmonster
      - redis

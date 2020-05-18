@@ -1,0 +1,68 @@
+#!groovy
+//manual https://jenkins.io/doc/book/pipeline/
+//check slave properties
+properties ([disableConcurrentBuilds()])
+pipeline {
+    agent {
+        label 'master'
+    }
+    triggers {
+        pollSCM ('* * * * *')
+    }
+    options {
+        buildDiscarder (logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
+        timestamps ()
+    }
+    stages {
+
+        stage ("Set_ENV_ARGS"){
+            steps{
+                echo "===================Set_ENV_ARGS==================="
+                COMPOSE_ARGS=" -f jenkins.yml -p jenkins "
+            }
+        }
+
+        stage ("STOP & RM OLD CONTAINERS"){
+            steps{
+                echo "===================STOP & RM OLD CONTAINERS==================="
+                dir ('identidock'){
+                    sudo docker-compose $COMPOSE_ARGS stop
+                    sudo docker-compose $COMPOSE_ARGS rm --force -v
+                }
+            }
+        }
+
+        stage ("BUILD & UP"){
+            steps{
+                echo "===================BUILD & UP==================="
+                dir ('identidock'){
+                sudo docker-compose $COMPOSE_ARGS build --no-cache
+                sudo docker-compose $COMPOSE_ARGS up -d
+                }
+            }
+        }
+
+        stage("UNIT TEST") {
+            steps{
+                echo "===================UNIT TEST==================="
+                sudo docker-compose $COMPOSE_ARGS run --no-deps --rm -e ENV=UNIT identidock ERR=$?
+            }
+        }
+
+        stage("SYSTEM TEST") {
+            steps{
+                echo "===================SYSTEM TEST==================="
+                dir ('identidock'){
+                    if [ $ERR -eq 0 ]; then
+                        IP=$(sudo docker inspect -f {{.NetworkSettings.IPAddress}} jenkins_identidock_1)
+                        CODE=$(curl -sL -w "%{http_code}" $IP:9090/monster/bla -o /dev/null) || true
+                        if [ $CODE -ne 200 ]; then
+                            echo "Site returned " $CODE
+                            ERR=1
+                        fi
+                    fi
+                }
+            }
+        }
+   }
+}

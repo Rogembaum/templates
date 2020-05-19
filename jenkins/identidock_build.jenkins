@@ -77,7 +77,9 @@ pipeline {
         }
 
         stage("ADD TAG") {
-            def HASH='git rev-parse --short HEAD'
+            environment {
+              def HASH='git rev-parse --short HEAD'
+            }
             steps{
                 echo "===================ADD TAG==================="
                 dir ('identidock'){

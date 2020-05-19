@@ -76,6 +76,17 @@ pipeline {
             }
         }
 
+        stage ("LOGIN DOCKERHUB"){
+            steps{
+                echo "===================LOGIN DOCKERHUB==================="
+                withCredentials([usernamePassword(credentialsId: 'dockerhub_rogembaum', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
+                    sh """
+                    docker login -u $USERNAME -p $PASSWORD
+                    """
+                }
+            }
+        }
+
         stage("ADD TAG") {
             steps{
                 echo "===================ADD TAG==================="
@@ -86,8 +97,11 @@ pipeline {
                     echo "HASH = ${HASH}"
                     sudo docker tag  jenkins_identidock rogembaum/identidock:${HASH}
                     sudo docker tag  jenkins_identidock rogembaum/identidock:newest
+                    echo "Lets Push with tag ${HASH}"
+                    sudo docker push rogembaum/identidock:${HASH}
+                    sudo docker push rogembaum/identidock:newest
                   '''
-                  echo "Lets Push with tag ${HASH}"
+
                 }
             }
         }

@@ -77,12 +77,13 @@ pipeline {
         }
 
         stage("ADD TAG") {
-            environment {
-              def HASH=sh 'git rev-parse --short HEAD'
-            }
             steps{
                 echo "===================ADD TAG==================="
                 dir ('identidock'){
+                  sh '''#!/bin/bash
+                    HASH=$(git rev-parse --short HEAD)
+                    echo $HASH
+                  '''
                   echo "Test passing, now lets TAGGING"
                   sh 'sudo docker tag  jenkins_identidock rogembaum/identidock:${HASH}'
                   sh 'sudo docker tag  jenkins_identidock rogembaum/identidock:newest'

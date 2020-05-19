@@ -82,11 +82,10 @@ pipeline {
                 dir ('identidock'){
                   sh '''#!/bin/bash
                     HASH=$(git rev-parse --short HEAD)
-                    echo $HASH
+                    sudo docker tag  jenkins_identidock rogembaum/identidock:${HASH}
+                    sudo docker tag  jenkins_identidock rogembaum/identidock:newest
                   '''
                   echo "Test passing, now lets TAGGING"
-                  sh 'sudo docker tag  jenkins_identidock rogembaum/identidock:${HASH}'
-                  sh 'sudo docker tag  jenkins_identidock rogembaum/identidock:newest'
                   echo "Lets Push"
                 }
             }

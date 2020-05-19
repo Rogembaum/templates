@@ -69,6 +69,12 @@ pipeline {
                         if ( CODE != 200 ){
                           echo "Site returned " CODE
                           assert ERR == 1
+                        }else{
+                          echo "Test passing, now lets TAGGING"
+                          String HASH='git rev-parse --short HEAD'
+                          sh 'sudo docker tag -f jenkins_identidock rogembaum/identidock:$HASH'
+                          sh 'sudo docker tag -f jenkins_identidock rogembaum/identidock:newest'
+                          echo "Lets Push"
                         }
                       }
                     }

@@ -78,7 +78,7 @@ pipeline {
 
         stage("ADD TAG") {
             environment {
-              def HASH='git rev-parse --short HEAD'
+              def HASH=sh 'git rev-parse --short HEAD'
             }
             steps{
                 echo "===================ADD TAG==================="

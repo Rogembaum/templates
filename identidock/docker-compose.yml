@@ -4,9 +4,9 @@ services:
   identidock:
     image: rogembaum/identidock:0.3
     ports:
-     - "5000:5000"
-     - "9090:9090"
-     - "9191:9191"
+      - 5000:5000
+      - 9090:9090
+      - 9191:9191
     environment:
      ENV: 'UNIT'
     volumes:

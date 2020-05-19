@@ -6,6 +6,12 @@ pipeline {
     agent {
         label 'master'
     }
+
+    environment {
+        COMPOSE_ARGS = ' -f jenkins.yml -p jenkins '
+        ERR = 0
+    }
+
     triggers {
         pollSCM ('* * * * *')
     }
@@ -15,10 +21,10 @@ pipeline {
     }
     stages {
 
-        stage ("Set_ENV_ARGS"){
+        stage ("SET ENV"){
             steps{
-                echo "===================Set_ENV_ARGS==================="
-                COMPOSE_ARGS=" -f jenkins.yml -p jenkins "
+                echo "===================SET ENV==================="
+                echo "${COMPOSE_ARGS}"
             }
         }
 
@@ -26,8 +32,8 @@ pipeline {
             steps{
                 echo "===================STOP & RM OLD CONTAINERS==================="
                 dir ('identidock'){
-                    sudo docker-compose $COMPOSE_ARGS stop
-                    sudo docker-compose $COMPOSE_ARGS rm --force -v
+                    sh 'sudo docker-compose ${COMPOSE_ARGS} stop'
+                    sh 'sudo docker-compose ${COMPOSE_ARGS} rm --force -v'
                 }
             }
         }
@@ -36,8 +42,8 @@ pipeline {
             steps{
                 echo "===================BUILD & UP==================="
                 dir ('identidock'){
-                sudo docker-compose $COMPOSE_ARGS build --no-cache
-                sudo docker-compose $COMPOSE_ARGS up -d
+                sh 'sudo docker-compose ${COMPOSE_ARGS} build --no-cache'
+                sh 'sudo docker-compose ${COMPOSE_ARGS} up -d'
                 }
             }
         }
@@ -45,7 +51,9 @@ pipeline {
         stage("UNIT TEST") {
             steps{
                 echo "===================UNIT TEST==================="
-                sudo docker-compose $COMPOSE_ARGS run --no-deps --rm -e ENV=UNIT identidock ERR=$?
+                dir ('identidock'){
+                  sh 'sudo docker-compose ${COMPOSE_ARGS} run --no-deps --rm -e ENV=UNIT identidock;  ERR=$?'
+                }
             }
         }
 
@@ -53,14 +61,17 @@ pipeline {
             steps{
                 echo "===================SYSTEM TEST==================="
                 dir ('identidock'){
-                    if [ $ERR -eq 0 ]; then
-                        IP=$(sudo docker inspect -f {{.NetworkSettings.IPAddress}} jenkins_identidock_1)
-                        CODE=$(curl -sL -w "%{http_code}" $IP:9090/monster/bla -o /dev/null) || true
-                        if [ $CODE -ne 200 ]; then
-                            echo "Site returned " $CODE
-                            ERR=1
-                        fi
-                    fi
+                    script {
+                      if ( ERR == 0 ){
+                      String IP = "(sh 'sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' jenkins_identidock_1')"
+                      int CODE = 200
+                      //int CODE  = '(curl -sL -w "%{http_code}" IP:9090/monster/bla -o /dev/null)'
+                        if ( CODE != 200 ){
+                          echo "Site returned " CODE
+                          assert ERR == 1
+                        }
+                      }
+                    }
                 }
             }
         }

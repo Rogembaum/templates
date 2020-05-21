@@ -87,9 +87,9 @@ pipeline {
             }
         }
 
-        stage("ADD TAG") {
+        stage("ADD TAG & PUSH TO REGISTRY") {
             steps{
-                echo "===================ADD TAG==================="
+                echo "===================ADD TAG & PUSH TO REGISTRY==================="
                 dir ('identidock'){
                   echo "Test passing, now lets TAGGING"
                   sh '''#!/bin/bash

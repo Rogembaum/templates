@@ -1,0 +1,25 @@
+---
+- name: Install apache and upload index.html
+  hosts: all
+  become: yes
+
+  vars:
+   source_file: ./index.html
+   destin_file: /var/www/html
+
+  tasks:
+  - name: Install apache 
+    yum: name=apache2 state=latest
+
+  - name: Copy index.html to servers
+    copy: src={{ source_file }} dest={{ destin_file }} mode=0555
+    notify: Restart apache
+
+  - name: Start web server and make enable on boot
+    service: name=apache2 state=started enabled=yes
+
+
+  handlers:
+   - name: Restart apache
+     service: name=apache2 state=restarted
+...

@@ -1,25 +1,50 @@
 ---
 - name: Install apache and upload index.html
   hosts: all
-  become: yes
+  become: true
 
   vars:
    source_file: ./index.html
    destin_file: /var/www/html
 
   tasks:
-  - name: Install apache 
-    yum: name=apache2 state=latest
 
-  - name: Copy index.html to servers
-    copy: src={{ source_file }} dest={{ destin_file }} mode=0555
-    notify: Restart apache
+  - block: #=======Block Debian=======
+      - name: Install web-server Debian
+        package:
+          name: apache2
+          state: latest
 
-  - name: Start web server and make enable on boot
-    service: name=apache2 state=started enabled=yes
+      - name: Copy index.html to servers Debian
+        copy: src={{ source_file }} dest={{ destin_file }} mode=0555
+        notify: Restart web-server Debian
 
+      - name: Start web-server & enable on boot Debian
+        service: name=apache2 state=started enabled=yes
+
+    when: ansible_os_family == "Debian"
+
+
+  - block: #=======Block RedHat=======
+
+    - name: Install web-server RedHat
+      package:
+        name: httpd
+        state: latest
+
+    - name: Copy index.html to servers RedHat
+      copy: src={{ source_file }} dest={{ destin_file }} mode=0555
+      notify: Restart web-server RedHat
+
+    - name: Start web-server & enable on boot RedHat
+      service: name=httpd state=started enabled=yes
+
+    when: ansible_os_family == "RedHat"
 
   handlers:
-   - name: Restart apache
+   - name: Restart web-server  RedHat
      service: name=apache2 state=restarted
+
+   - name: Restart web-server Debain
+     service: name=httpd state=restarted
 ...

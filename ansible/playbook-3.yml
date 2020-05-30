@@ -44,6 +44,11 @@
     when: ansible_os_family == "RedHat"
 #=======End Block RedHat=======
 
+  - name: Generate index.html file
+    template: src={{ src_folder}}/index.j2 dest={{ dest_folder }}/index.html mode=0555
+    notify:
+      - Restart web-server RedHat
+      - Restart web-server Debian
 
   - name: Copy index.html to servers
     copy: 

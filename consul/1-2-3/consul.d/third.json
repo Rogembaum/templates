@@ -1,0 +1,13 @@
+{
+  "service": {
+    "name": "third",
+    "tags": [
+      "third"
+    ],
+    "port": 5002,
+    "connect": {
+      "sidecar_service": {
+      }
+    }
+  }
+}

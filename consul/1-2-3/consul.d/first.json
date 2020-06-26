@@ -1,0 +1,19 @@
+{
+  "service": {
+    "name": "first",
+    "tags": [
+      "first"
+    ],
+    "port": 5000,
+    "connect": {
+      "sidecar_service": {
+        "proxy": {
+          "upstreams": [{
+            "destination_name": "second",
+            "local_bind_port": 6001
+          }]
+        }
+      }
+    }
+  }
+}

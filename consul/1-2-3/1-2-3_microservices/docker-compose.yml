@@ -1,0 +1,32 @@
+version: "3"
+services:
+
+  first:
+    build: ./first
+    image: first
+    ports:
+     - "5000:5000"
+    volumes:
+     - ./first/app:/app
+    depends_on:
+     - second
+
+
+  second:
+    build: ./second
+    image: second
+    ports:
+     - "5001:5001"
+    volumes:
+     - ./second/app:/app
+    depends_on:
+      - third
+
+
+  third:
+    build: ./third
+    image: third
+    ports:
+     - "5002:5002"
+    volumes:
+     - ./third/app:/app

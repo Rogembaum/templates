@@ -1,0 +1,18 @@
+---
+schemaVersion: "2.2"
+description: "Sample YAML template to install httpd"
+parameters:
+  Message:
+    type: "String"
+    description: "Example Message"
+    default: "Hello World"
+mainSteps:
+- action: "aws:runShellScript"
+  name: "configure_httpd"
+  inputs:
+    runCommand:
+    - 'sudo yum update -y'
+    - 'sudo yum install httpd -y'
+    - 'sudo systemctl start httpd.service'
+    - 'sudo systemctl enable httpd.service'
+    - 'echo "{{ Message }} from $(hostname -f)" > /var/www/html/index.html'

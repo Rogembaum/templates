@@ -1,0 +1,7 @@
+aws ssm get-parameters --names /my-app/prod/url				
+
+aws ssm get-parameters --names /my-app/prod/url --with-decryption				
+ 
+aws ssm get-parameters-by-path  --path /my-app/prod
+
+aws ssm get-parameters-by-path  --path /my-app --recursive

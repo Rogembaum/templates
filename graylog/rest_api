@@ -1,0 +1,17 @@
+# list graylog permissions
+curl-u ADMIN:PASSWORD 'http://SERVER_NAME:9000/api/systems/permissions?pretty=true'
+
+# request the user information to see what permissions have been assigned
+curl-u ADMIN:PASSWORD 'http://SERVER_NAME:9000/api/users/USERNAME?pretty=true'
+
+# create role
+curl -v -XPOST -u ADMIN:PASSWORD -H 'Content-Type: application/json' 'http://SERVER_NAME:9000/api/roles' -d '{"read_only": false,"permissions": ["processing:changestate"],"name": "Change processing state","description": "Permission to start or stop processing on Graylog nodes"}'
+
+{
+  "name": "Allow searches",
+  "description": "Allow searches relative, absolute, keyword",
+  "permissions": [
+    "searches:*"
+  ],
+  "read_only": "false"
+}

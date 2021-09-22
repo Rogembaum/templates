@@ -1,3 +1,4 @@
+# SSM
 aws ssm get-parameters --names /my-app/prod/url				
 
 aws ssm get-parameters --names /my-app/prod/url --with-decryption				
@@ -5,3 +6,95 @@ aws ssm get-parameters --names /my-app/prod/url --with-decryption
 aws ssm get-parameters-by-path  --path /my-app/prod
 
 aws ssm get-parameters-by-path  --path /my-app --recursive
+
+
+#EC2
+aws ec2 describe-instances --region us-east-1 --output json
+aws ec2 describe-instances --region us-east-1 --output table
+
+aws ec2 describe-instances --region us-east-1 --output yaml
+
+aws ec2 describe-instances --region us-east-1 --output yaml --no-cli-pager
+
+aws ec2 describe-instances --region us-east-1 --output yaml --no-cli-paper --color on
+
+aws ec2 describe-instances --region us-east-1 --query \
+'Reseirvations[].Instances[?LaunchTime>=`2021-01-01`][].[join(`,`,Tags[?Key==`Name`].Value),InstanceId, LaunchTime]' \
+| ts -s '\t' ','
+
+#CLOUDWATCH
+aws logs create-log-group
+aws logs delete-log-group
+aws logs associate-kms-key
+
+aws logs create-log-stream
+aws logs delete-log-stream
+
+aws logs put-log-events
+aws logs get-log-events
+aws logs get-log-record
+
+
+# CloudTrail
+aws cloudtrail create-trail
+aws cloudtrail delete-trail
+
+aws cloudtrail start-logging
+aws cloudtrail stop-logging
+
+aws cloudtrail validate-logs
+
+
+# CloudWatch Logs Insights Operations
+aws logs put-query-definition
+aws logs delete-query-definition
+
+aws logs start-query
+aws logs stop-query
+aws logs get-query-results
+
+stats count (*) by eventSource, eventName, awsRegion
+
+
+# CloudTrail Logs Insights
+aws cloudtrail put-insight-selectors
+aws cloudtrail get-insight-selectors
+
+
+# CloudWatch Logs Export
+aws logs create-export-tasks
+aws logs cancel-export-tasks
+
+# live tail
+aws logs tail
+aws logs tail testgroup --follow --region us-east-1
+
+aws logs put-subscription-filter
+--log-group-name
+--filter-name
+--filter-pattern
+--destination-arn
+--role-arn <same-account>
+
+
+
+
+# CWA SSM Automated Install
+aws ssm send-command 
+    --document-name "AWS-Configure AWSPackage"
+    --document-version "1"
+    --targets '[{"Key":"tag:TAGNAME", "Values": ["TAGVALUE"]}]'
+    --parameters '{"action":["Install"],"installationType": ["Uninstall and reinstall"], "version": [""], "name": ["AmazonCloudWatchAgent]}'
+    --region $region
+
+# CWA Configure (SSM Parameter store)
+aws ssm send-command 
+    --document-name "AmazonCloudWatch-ManageAgent"
+    --document-version "4"
+    --targets '[{"Key":"tag:TAGNAME", "Values": ["TAGVALUE"]}]'
+    --parameters '{"action":["configure"],"mode": ["ec2"], "optionalConfigurationSource": ["ssm"], "optionalConfigurationLocation": ["AmazonCloudWatch-linux],"optionalrestart": ["yes"]}'
+    --region $region
+
+    
+# CWA Configure (Manual)
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard

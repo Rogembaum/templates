@@ -1,0 +1,32 @@
+GET /_cluster/allocation/explain
+
+GET /_cat/health
+
+# Pinpointing problematic shards
+curl -XGET localhost:9200/_cat/shards?h=index,shard,prirep,state,unassigned.reason| grep UNASSIGNED
+
+#Snapshot and restore 
+
+    # Register a snapshot repository
+
+    curl -X PUT "localhost:9200/_snapshot/my_backup?pretty" -H 'Content-Type: application/json' -d'
+    {
+    "type": "fs",
+    "settings": {
+        "location": "my_backup_location"
+    }
+    }
+    '
+
+
+#delete index:         
+curl -XDELETE 'localhost:9200/index_name'
+
+#delete all indices:   
+curl -XDELETE 'localhost:9200/_all'
+
+#delete document:   
+curl -XDELETE 'localhost:9200/index_name/type_name/document_id'
+
+# delete UNASSIGNED shards
+curl -XGET http://localhost:9200/_cat/shards | grep UNASSIGNED | awk {'print $1'} | xargs -i curl -XDELETE "http://localhost:9200/{}"

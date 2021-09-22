@@ -15,3 +15,31 @@ curl -v -XPOST -u ADMIN:PASSWORD -H 'Content-Type: application/json' 'http://SER
   ],
   "read_only": "false"
 }
+
+
+# default mappings
+curl -X GET 'http://localhost:9200/_template/graylog-internal?pretty'
+
+
+curl -i -X POST -u admin:PASS -H 'Content-Type: application/json' -H 'X-Requested-By: cli' 'http://172.28.128.15:9000/api/roles' -d @custom-role.json
+File content custom-role.json :
+{
+  "name": "Custom",
+  "description": "Custom role",
+  "permissions": [
+        "clusterconfigentry:read",
+        "indexercluster:read",
+        "messagecount:read",
+        "journal:read",
+        "messages:analyze",
+        "metrics:read",
+        "fieldnames:read",
+        "buffers:read",
+        "system:read",
+        "jvmstats:read",
+        "decorators:read",
+        "throughput:read",
+        "messages:read"
+      ],
+  "read_only": false
+}

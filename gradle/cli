@@ -1,0 +1,12 @@
+gradle tasks
+
+gradle tasks --all
+
+gradle -dry-run TASK
+
+gradle help --task TASK
+
+gradle TASK
+
+#print dependencies for subproject
+gradle SUBPROJECT:dependencies

@@ -1,0 +1,5 @@
+aws ec2 create-image \
+    --description "some text" \
+    --instance-id ID
+    --name "name"
+    --no-reboot

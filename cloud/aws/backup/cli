@@ -1,0 +1,57 @@
+aws backup start-backup-job \
+    --backup-vault-name myVault \
+    --resource-arn instanceARN \
+    --iam-role-arn roleARN 
+;; (backup job will use to create AMI)
+
+
+
+# RDS RESTORE
+#auto back (creates a new db during restore)
+aws rds restore restore-db-instance-to-point-in-time
+
+#manual snap(creates a new db during restore)
+aws rds restore restore-db-instance-from-db-snap
+
+#back in s3(creates a new db during restore)
+aws rds restore restore-db-instance-from-s3
+
+#promote read replica
+aws rds promote-read-replica
+
+
+
+#AURORA RESTORE
+#auto back (creates a new db during restore)
+aws rds restore restore-db-cluster-instance-to-point-in-time
+
+#manual snap(creates a new db during restore)
+aws rds restore restore-db-cluster-instance-from-snap
+
+#back in s3(creates a new db during restore)
+aws rds restore restore-db-cluster-instance-from-s3
+
+#promote read replica
+aws rds promote-read-replica-restore-db-cluster
+
+#backtrack
+aws rds backtrack-db-cluster
+
+
+#DYNAMODB RESTORE
+#PITR (create a new table during restore)
+aws rds restore-tablerestore-to-point-in-time
+
+#on-demand backup (create a new table during restore)
+aws rds restore-table-from-backup
+
+
+#REDSHIFT RESTORE
+#all snaps (creates a new cluster endpoint during restore)
+aws redshift restore-from-cluster-snapshot
+
+#restore table
+aws redshift restore-table-from-cluster-snapshot
+
+#relocate (it is not designed as high resiliense - move to another AZ in the same region)
+aws redshift modify-cluster --availability-zone

@@ -1,0 +1,16 @@
+<source>
+  @type tail
+  path {{ apache_access_log }}
+  pos_file C:\opt\td-agent\httpd-access.log.pos
+  tag apache.access 
+  format apache2
+</source>
+<match **>
+  @type gelf
+  host {{ ip_address_graylog_server }}
+  port 12201
+  protocol udp
+  <buffer>
+    flush_interval 5s
+  </buffer>
+</match>

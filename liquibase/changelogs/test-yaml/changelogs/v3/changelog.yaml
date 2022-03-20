@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: root-rootovich
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: birthdate
+                  type: date
+      # rollback:
+      #   - dropTable:
+      #       tableName: users

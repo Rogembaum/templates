@@ -1,0 +1,42 @@
+---
+- name: Install Fluentd agent
+  hosts: client-6
+  gather_facts: false
+
+  vars:
+    ip_address_graylog_server: 192.168.0.222
+    apache_access_log: "C:\\Program\ Files\\httpd\\Apache24\\logs\\access.log"
+    __fluentd_gem_bin: "C:\\opt\\td-agent\\bin\\fluent-gem.bat"
+    __fluentd_gem_gelf: "fluent-plugin-gelf"
+    __fluentd_distr_msi: "C:\\tmp\\td-agent-4.0.1-x64.msi"
+  
+  tasks: 
+
+    - name: Install agent
+      win_package:
+        path: "{{ __fluentd_distr_msi }}"
+        product_id: '{C6699D5E-8ED4-4359-A97E-B88F24B083EF}'
+        state: present
+    
+    - name: Register installed plugins
+      win_command: "{{ __fluentd_gem_bin }} list"
+      register: gem_list
+      changed_when: False
+
+    - name: copy fluentd conf
+      template:
+        src: td-agent.j2
+        dest: C:\opt\td-agent\etc\td-agent\td-agent.conf
+      notify: restart fluentd
+
+    - name: Install fluent plugins
+      win_command: "{{ __fluentd_gem_bin }} install {{ item }}"
+      with_items: "{{ __fluentd_gem_gelf }}"
+      when: not ( gem_list.stdout | regex_search(item) )
+      notify: restart fluentd
+
+  handlers:
+    - name: restart fluentd
+      win_service:
+        name: fluentdwinsvc
+        state: restarted

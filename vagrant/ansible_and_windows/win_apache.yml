@@ -1,0 +1,61 @@
+---
+- name: Install Apache
+  hosts: client-6
+
+  vars:
+    apache_url: https://www.apachehaus.com/downloads/httpd-2.4.46-o111i-x64-vc15.zip
+    apache_checksum: "4a475f9b99779d735316817acd2841d1cf7198b5"
+    apache_checksum_algorithm: "sha1"
+    apache_name_dir: "Apache24"
+    apache_conf: "conf\\httpd.conf"
+    apache_name_service: Apache2.4
+    apache_service_path: '"C:\Program Files\Apache24\bin\httpd.exe" -k runservice'
+    apache_description: Apache/2.4.46 (Win64) OpenSSL/1.1.1i
+    apache_service_dependencies:
+      - Tcpip
+      - Afd
+    vcredist_source: https://aka.ms/vs/15/release/VC_redist.x64.exe
+    vcredist_product_id: '{27744187-E45F-41F3-8BC2-0DC5F9238FDB}'
+    
+  tasks: 
+
+    - name: Install  vcredist
+      win_package:
+        path: "{{ vcredist_source }}"
+        product_id: "{{ vcredist_product_id }}"
+        arguments: /install /passive /norestart
+
+    - name: Download {{ apache_name_service }}
+      win_get_url:
+          url: "{{ item }}"
+          dest: "{{ ansible_env.TEMP }}"
+          checksum: "{{ apache_checksum }}"
+          checksum_algorithm: "{{ apache_checksum_algorithm }}"
+      with_items:
+          - "{{ apache_url }}"
+      register: download_summary
+    
+    #This module is not really idempotent, it will extract the archive every time, and report a change.
+    # for getting idempotent'ность  I use -  creates: "{{ ansible_env.ProgramFiles }}\\{{apache_name_dir}}"
+    - name: Unzip Apache
+      win_unzip:
+        src: "{{ download_summary.results[0].dest }}"
+        dest: "{{ ansible_env.ProgramFiles }}"
+        creates: "{{ ansible_env.ProgramFiles }}\\{{apache_name_dir}}"
+
+    - name: Update {{ apache_conf }}
+      win_lineinfile:
+        path: "{{ ansible_env.ProgramFiles }}\\{{ apache_name_dir }}\\{{ apache_conf }}"
+        backrefs: yes
+        regex: '^Define SRVROOT \"\/{{ apache_name_dir }}\"'
+        line: "Define SRVROOT \"{{ ansible_env.ProgramFiles }}\\{{ apache_name_dir }}\""
+
+    - name: Create and run apache service
+      win_service:
+        name: "{{ apache_name_service }}"
+        path: "{{apache_service_path}}"
+        display_name: "{{ apache_name_service }}"
+        description: "{{ apache_description }}"
+        dependencies: "{{ apache_service_dependencies }}"
+        start_mode: auto
+        state: started

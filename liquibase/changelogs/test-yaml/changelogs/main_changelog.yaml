@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - preConditions:
+      - runningAs:
+              username: root
+  
+  - include:
+      #!!! first run to comment all except 1
+      file: changelogs/v1/changelog.yaml
+      file: changelogs/v2/changelog.yaml
+      # file: changelogs/v3/changelog.yaml
+      #!!! v4 removes table
+      # file: changelogs/v4/changelog.yaml

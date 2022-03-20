@@ -1,0 +1,27 @@
+liquibase status --verbose
+
+liquibase update
+
+liquibase rollbackCountSQL 1
+ONLY SHOW
+
+то есть если поставить в конце команды SQL 
+тогда получим verbose команд
+
+liquibase rollbackCount 1
+JUST rollback
+
+
+liquibase clearCheckSums
+если кто-то поменял тело ЛОГА и придется потом грохать все суммы
+clear column MD5SUM
+
+liquibase changeLogSync
+пересчитать ХЕШИ и поставить в таблицу - не применяя
+fill column MD5SUM
+
+!!! Но чтобы все-таки "измененное" тело вступило в силу - надо 
+runOnChange:true
+
+
+liquibase calculateCheckSum changelogs/v3/changelog.xml::3::nvoxland

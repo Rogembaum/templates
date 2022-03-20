@@ -1,0 +1,58 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_NO_PARALLEL'] = 'no'
+
+Vagrant.configure(2) do |config|
+  config.vm.synced_folder ".", "/vagrant_data", disabled: true
+
+  #config.vm.provision "shell", path: "bootstrap.sh"
+  #### 'это применяется для всех машин - скорей всего тут будут ключи'
+
+  # Ansible
+  config.vm.define "ansible" do |ansible|
+    ansible.vm.box = "centos/7"
+    ansible.vm.hostname = "apache.local.net"
+    ansible.vm.network "public_network", 
+      bridge: "vLAN",  
+      #auto_config: false,
+      ip: "192.168.0.200",
+      netmask: "24"
+    ansible.vm.provider "hyperv" do |v|
+      v.vmname = "ansible"
+      v.memory = 2048
+      v.cpus = 2
+      v.enable_virtualization_extensions = false
+      v.linked_clone = true
+      v.vm_integration_services = {
+        guest_service_interface: true,
+        #time_synchronization: true
+      } 
+    end
+    ansible.vm.provision "shell", path: "bootstrap_ansible.sh"
+  end
+
+  # Win2012R2
+  config.vm.define "win2012R2" do |win|
+    win.vm.box = "mwrock/Windows2012R2"
+    win.vm.hostname = "win"
+    win.vm.network "public_network", 
+      bridge: "vLAN"#,  
+        #auto_config: false,
+        #ip: "192.168.0.200",
+        #netmask: "24"
+    win.vm.provider "hyperv" do |v|
+      v.vmname = "win"
+      v.memory = 4096
+      v.cpus = 4
+      v.enable_virtualization_extensions = false
+      v.linked_clone = true
+      v.vm_integration_services = {
+        #guest_service_interface: true,
+        time_synchronization: true
+      } 
+      end
+      win.vm.provision "shell", path: "bootstrap_win.ps1"
+  end
+
+end

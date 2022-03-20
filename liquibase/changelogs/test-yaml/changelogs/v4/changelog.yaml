@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: root-trud
+      preConditions:
+        - sqlCheck:
+            expectedResult: 0
+            sql: select count(*) from users
+      changes:
+        - dropTable:
+            tableName: users

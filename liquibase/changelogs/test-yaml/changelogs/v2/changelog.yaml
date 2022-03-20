@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: sancho-pancho
+      changes:
+        # - addAutoIncrement:
+        #     columnDataType: int
+        #     columnName: id
+        #     tableName: users
+        # - addColumn:
+        #     tableName: users
+        #     columns:
+        #       - column:
+        #           name: age
+        #           type: smallint
+        - renameColumn:
+            tableName: users
+            oldColumnName: name
+            newColumnName: fullname
+            columnDataType: varchar(100)
+        # - rollback:
+        #     tableName: users
+        #     oldColumnName: fullname
+        #     newColumnName: name
+        #     columnDataType: varchar(100)

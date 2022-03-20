@@ -1,0 +1,31 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+
+Vagrant.configure(2) do |config|
+  config.vm.synced_folder ".", "/vagrant_data", disabled: true
+
+  # Mysql
+  config.vm.define "mysql" do |mysql|
+    mysql.vm.box = "centos/7"
+    mysql.vm.hostname = "mssql.local.net"
+      mysql.vm.network "public_network", 
+        bridge: "vLAN"
+      # mysql.vm.network "forwarded_port", guest: 3306, host: 3306, host_ip: "127.0.0.1"
+      # mysql.vm.network "forwarded_port", guest: 22, host: 22222, host_ip: "127.0.0.1"
+    mysql.vm.provider "hyperv" do |v|
+      v.vmname = "mysql"
+      v.memory = 10240
+      v.cpus = 4
+      v.enable_virtualization_extensions = false
+      v.linked_clone = true
+      v.vm_integration_services = {
+        guest_service_interface: true,
+        time_synchronization: true
+      } 
+    end
+    mysql.vm.provision "shell", path: "bootstrap.sh"
+  end
+
+
+end

@@ -1,0 +1,7 @@
+Get-Content .\Dockerfile | docker build -
+
+docker tag 6321de15b638 httpd_logrotate:2.4.39-alpine
+
+docker save myimage:latest | gzip > myimage_latest.tar.gz
+
+docker load

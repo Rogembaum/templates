@@ -1,0 +1,351 @@
+---
+- name: Install 1C server, PostgreSQL
+  hosts: all
+  become: true
+
+  vars:
+
+   epel_repo_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+   epel_repo_gpg_key_url: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+   epel_repofile_path: "/etc/yum.repos.d/epel.repo"
+
+   disable_ipv6_all: "net.ipv6.conf.all.disable_ipv6 = 1\nnet.ipv6.conf.default.disable_ipv6 = 1\n"
+   sysctl_conf: "/etc/sysctl.conf"
+
+   hosts_content: "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4\n\
+		  localhost localhost.localdomain localhost6 localhost6.localdomain6\n\
+		  {{ ansible_hostname }}\n"
+   hosts_file: "/etc/hosts"
+
+
+   network_content: "NETWORKING=yes\n\
+		    NETWORKING_IPV6=no\n\
+		    HOSTNAME={{ ansible_hostname }}\n"
+   network_file: "/etc/sysconfig/network"
+
+#============================================
+#PostgresSQL vars
+#============================================
+
+   pgsql_start: "/usr/pgsql-11/bin/pg_ctl -D /var/lib/pgsql/11/data/ -l logfile start"
+   pgsql_init: "/usr/pgsql-11/bin/initdb -D /var/lib/pgsql/11/data/ --locale=ru_RU.UTF-8"
+   pgsql_status:  "/usr/pgsql-11/bin/pg_ctl -D /var/lib/pgsql/11/data/ status"
+   pgsql_dir_data: "/var/lib/pgsql/11/data/"
+   pg_hba_conf: "/var/lib/pgsql/11/data/pg_hba.conf"
+   rpm_src_pgsql: ./files/pgsql_rpm
+   rpm_dst_pgsql: /home/pgsql_rpm
+   postgresql_service_name: "postgresql-11"
+
+#============================================
+#1C vars
+#============================================
+   rpm_src_1c: ./files/1c_rpm
+   rpm_dst_1c: /home/1c_rpm
+   fonts: "https://sourceforge.net/projects/mscorefonts2/files/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm"
+   sysconfig_1c: /etc/sysconfig/srv1cv83
+   initd_1c: /etc/init.d/srv1cv83
+   opt_1c: /opt/1c
+
+
+
+  tasks:
+
+  - name: 1 Check if EPEL repo is already configured.
+    stat: path={{ epel_repofile_path }}
+    register: epel_repofile_result
+
+  - name: 2 Install EPEL repo
+    yum:
+      name: "{{ epel_repo_url }}"
+      state: present
+    register: result
+    when: not epel_repofile_result.stat.exists
+
+  - name: 3 Import EPEL GPG key.
+    rpm_key:
+      key: "{{ epel_repo_gpg_key_url }}"
+      state: present
+    when: not epel_repofile_result.stat.exists
+
+
+  - name: 4 Upgrade all packages
+    yum:
+      name: '*'
+      state: latest
+      exclude:
+        - postgresql*
+
+  - name: 5 Install a list of packages installed
+    yum:
+      name: "{{ packages }}"
+    vars:
+      packages:
+        - mc
+        - net-tools
+        - wget
+        - ImageMagick
+        - ImageMagick.i686
+        - fontconfig-devel
+        - xorg-x11-fonts-Type1
+        - curl
+        - cabextract 
+        - xorg-x11-font-utils
+        - fontconfig
+        - "{{ fonts }}"
+        - glib2-devel
+        - unixODBC
+        - libmspack
+        - bzip2
+
+  - name: 6 Disable IPv6
+    copy:
+      dest: "{{ sysctl_conf }}"
+      content: |
+        {{ disable_ipv6_all }}
+      force: yes
+      mode: 0644
+
+
+  - name: 7 Set /etc/sysctl.conf
+    copy:
+      dest: "{{ sysctl_conf }}"
+      content: |
+        {{ disable_ipv6_all }}
+      force: yes
+      mode: 0644
+
+
+  - name: 8 Set /etc/hosts
+    copy:
+      dest: "{{ hosts_file }}"
+      content: |
+        {{ hosts_content }}
+      force: yes
+      mode: 0644
+
+
+  - name: 9 Set /etc/sysconfig/network
+    copy:
+      dest: "{{ network_file }}"
+      content: |
+        {{ network_content }}
+      force: yes
+      mode: 0644
+
+
+  -  name: 10 Ensure SELinux is set to disabled mode
+     lineinfile:
+       path: /etc/selinux/config
+       regexp: '^SELINUX='
+       line: SELINUX=disabled
+     register: selinux
+  - debug:
+      var: selinux
+
+  - name: 11 Reboot after if was changed SELINUX
+    shell: sleep 3 && reboot now
+    async: 1
+    poll: 0
+    with_items: "{{ selinux.changed }}"
+    when: item == true
+
+
+  - name: 12 Wait untill server will up online
+    wait_for:
+      host: "{{ inventory_hostname }}"
+      state: started
+      delay: 5
+      timeout: 20
+    delegate_to: 127.0.0.1
+    with_items: "{{ selinux.changed }}"
+    when: item == true
+
+
+  - name: 13 Check if firewalld  service are deployed
+    command: systemctl is-enabled --quiet "{{ item }}"
+    register: services_enabled
+    ignore_errors: true
+    with_items:
+            - firewalld
+  - debug:
+      var: services_enabled
+
+
+  - name: 14 Check that services are running
+    command: systemctl is-active --quiet "{{ item.item }}"
+    with_items: "{{ services_enabled.results }}"
+    when: item.rc == 0
+
+
+
+  - name: 15 Stop and disable services
+    service: name={{ item.item }} state=stopped enabled=no
+    with_items: "{{ services_enabled.results }}"
+    when: item.rc == 0
+
+
+  - name: 16 Create a directory on remote servers
+    file:
+      path:  "{{ item }}"
+      state: directory
+      mode: '0755'
+    with_items:
+      - "{{ rpm_dst_1c }}"
+      - "{{ rpm_dst_pgsql }}"
+
+
+  - name: 17 Unzip pgsql files
+    unarchive:
+      src: "{{ item }}"
+      dest: "{{ rpm_dst_pgsql }}"
+    with_fileglob:
+      - "{{ rpm_src_pgsql }}/*.bz2"
+
+  - name: 18 Get dirs name
+    command: ls  "{{ rpm_dst_pgsql }}"
+    register: dir_out_pgsql
+  - debug:
+      var: dir_out_pgsql.stdout_lines
+
+
+  - name: 19 Install rpm pgsql
+    shell: cd "{{ rpm_dst_pgsql }}/{{  dir_out_pgsql.stdout_lines[1]  }}" && yum -y localinstall *.rpm
+
+
+  - name: 20 Install rpm pgsql addon
+    shell: cd "{{ rpm_dst_pgsql }}/{{  dir_out_pgsql.stdout_lines[0]  }}" && yum -y localinstall *.rpm
+
+
+  - name: 21 Insert ENV  postgres
+    blockinfile:
+      path: /var/lib/pgsql/.bash_profile
+      block: |
+        export PATH=/usr/pgsql-11/bin:$PATH
+        export MANPATH=/usr/pgsql-11/share/man:$MANPATH
+    become_method: su
+    become_user: postgres
+
+
+  - name: 22 Check status server DB before init and start
+    shell: "{{ pgsql_status }}"
+    become_method: su
+    become_user: postgres
+    register: pgsql_status_server
+    ignore_errors: true
+  - debug:
+      var: pgsql_status_server
+
+
+  - name: 23 Create data cluster
+    shell: "{{ pgsql_init }}"
+#    become: yes
+    become_method: su
+    become_user: postgres
+    when: pgsql_status_server.rc != 0
+
+
+  - name: 24 Start server DB
+    shell: "{{ pgsql_start }}"
+#    become: yes
+    become_method: su
+    become_user: postgres
+    when: pgsql_status_server.rc != 0
+
+
+  - name: 25 Enable auto start and  Start service PostgreSQL
+    service:
+        name: "{{ postgresql_service_name }}"
+        state: started
+        enabled: yes
+    ignore_errors: true
+
+  - name: 26 Reboot install postgresql
+    shell: sleep 3 && reboot now
+    async: 1
+    poll: 0
+
+  - name: 27 Wait untill server will up online
+    wait_for:
+      host: "{{ inventory_hostname }}"
+      state: started
+      delay: 5
+      timeout: 20
+    delegate_to: 127.0.0.1
+
+
+  - name: 28 Backup "pg_hba.conf"
+    shell: DATE=`date +%d-%m-%y-%T` && cp {{ pg_hba_conf }} {{ pg_hba_conf }}.$DATE
+
+
+  - name: 29 Copy "pg_hba.conf"
+    copy:
+      src: "./files/pg_hba.conf"
+      dest: "/var/lib/pgsql/11/data/pg_hba.conf"
+      mode: 0600
+      force: yes
+
+
+  - name: 30 Create a symbolic link
+    file:
+      src: /usr/lib/libMagickWand-6.Q16.so.6.0.0
+      dest: /usr/lib/libWand.so
+      state: link
+
+
+  - name: 31 Create a directory TrueType if it does not exist
+    file:
+      path: /usr/share/fonts/default/TrueType
+      state: directory
+      mode: '0755'
+
+
+  - name: 32 Install fonts
+    shell: cd /usr/share/fonts/default/TrueType && ttmkfdir && mkfontdir && fc-cache
+
+
+
+  - name: 33 Unzip 1c  files
+    unarchive:
+      src: "{{ item }}"
+      dest: "{{ rpm_dst_1c }}"
+    with_fileglob:
+      - "{{ rpm_src_1c }}/*.gz"
+    register: rpms_copied
+
+
+  - name: 34 Install 1c rpm
+    shell: cd "{{ rpm_dst_1c }}" && yum -y localinstall *.rpm
+
+
+  - name: 35 Change file ownership, group and permissions
+    file:
+      path: "{{ opt_1c }}"
+      state: directory
+      recurse: yes
+      owner: usr1cv8
+      group: grp1cv8
+
+
+  - name: 36 Insert bin/bash for 1c
+    lineinfile:
+      path: "{{ initd_1c }}"
+      insertbefore: '^# chkconfig:'
+      line: '#!/bin/bash'
+
+
+  - name: 37 Enable debug 1c
+    lineinfile:
+      path: "{{ sysconfig_1c }}"
+      insertafter: '^#SRV1CV8_DEBUG='
+      line: 'SRV1CV8_DEBUG=1'
+
+
+  - name: 38 Daemon reload
+    shell: systemctl daemon-reload
+
+
+  - name: 39 Enable auto start and  Start service 1c server
+    service:
+        name: srv1cv83
+        state: started
+        enabled: yes

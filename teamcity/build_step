@@ -1,0 +1,2 @@
+echo "##teamcity[buildStatus text='"%host%" SERVER_GROUP']"
+yes %ansible.vault.password% | %teamcity.tool.ansible-VERSION%/bin/ansible-playbook %ansible.verbosity% -i %ansible.inventory% --ask-vault-pass -u %ansible.username% %ansible.args% %ansible.playbook%

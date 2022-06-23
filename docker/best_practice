@@ -1,0 +1,67 @@
+#0
+Image - the smalest (alpine) 
+
+#1
+RUN - less count
+
+#2
+Cache - remove NOT into NEW layer (into current)
+
+#3
+.dockerignore - exclude from putting into docker
+    Dockerfile
+    .git
+    etc
+
+#4
+Install without cache
+
+#5
+COPY - lower due to frequent changes
+
+#6
+ENV - using for view
+    ENV NGINX_VER 1.17
+    RUN apk add ...repository=${NGINX_VER}}
+
+#7
+docker cache
+    docker build --cache-from IMAGE
+
+#8
+Multi-stage build
+    FROM golang AS golang
+    ...
+    steps generating binary file in /bin/project
+    ...
+    FROM scratch
+    COPY --from=build /bin/project /bin project
+    ENTRYPOINT ["/bin/project"]
+    CMD ["--help"]
+
+#9
+set version image app explicitly (do not use tag latest)
+
+#10
+set version app explicitly
+
+#11
+1 process - 1 container
+
+#12
+the 12 factor app
+
+#13
+collect logs
+
+#14
+ENV - for customazing
+
+#15
+Limit resource (cpu, ram, ..)
+
+#16
+minim privilege
+
+#17
+use own image + https://snyk.io

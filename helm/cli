@@ -1,0 +1,11 @@
+helm install NAME_SERVICE CHART_PATH
+
+helm install NAME_SERVICE CHART_PATH --dry-run
+or
+helm template NAME_SERVICE CHART_PATH
+
+helm install NAME_SERVICE CHART_PATH --set variable=value
+
+helm uninstall NAME_SERVICE (require full access to Secrets with 3 ver)
+
+helm create NAME_SERVICE

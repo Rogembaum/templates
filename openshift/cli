@@ -1,0 +1,12 @@
+oc edit deployment NAME
+
+
+oc get all -n NAMESPACE
+
+oc login --server=https://ADDRESS:PORT --username=USERNAME --password="PASSWORD"
+
+oc get useroaauthaccesstokens
+
+oc config set-context
+
+oc describe pod POD_NAME

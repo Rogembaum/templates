@@ -5,3 +5,16 @@ docker tag 6321de15b638 httpd_logrotate:2.4.39-alpine
 docker save myimage:latest | gzip > myimage_latest.tar.gz
 
 docker load
+
+docker rm $(docker ps -a -q)
+
+docker rmi $(docker images -q)
+
+----------
+COPY vs ADD
+COPY - simple copy
+ADD - connect resource from URL, unzip, etc.
+
+----------
+ENTRYPOINT - put binary file
+CMD - put flags

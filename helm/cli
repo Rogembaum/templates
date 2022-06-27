@@ -1,6 +1,6 @@
 helm install NAME_SERVICE CHART_PATH
 
-helm install NAME_SERVICE CHART_PATH --dry-run
+helm install NAME_SERVICE CHART_PATH --dry-run --debug
 or
 helm template NAME_SERVICE CHART_PATH
 

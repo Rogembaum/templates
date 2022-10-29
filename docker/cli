@@ -18,3 +18,17 @@ ADD - connect resource from URL, unzip, etc.
 ----------
 ENTRYPOINT - put binary file
 CMD - put flags
+
+WORKDIR creates dir
+
+USER - command does create layer
+
+ARG - used for build
+ENV - used for processing container
+
+----------
+mount vs volume
+mount - mount dir from host to container
+volume - mount from container to host (700 catalog)
+
+USER nobody

@@ -1,0 +1,72 @@
+# by default, revision=0 - 1 version ago
+# revision=1 - 2 version ago
+kubectl rollout undo deployment NAME-DEPLOYMENT --to-revision=1
+kubectl rollout status deployment DEPLOYMENT_NAME || kubectl rollout undo deployment DEPLOYMENT_NAME
+
+kubectl explain deployment.spec
+
+# get pods
+kubectl get po -w
+kubectl get po -o wide
+
+# delete all objects with all names exept for ConfigMap, Secrets
+kubectl delete all --all
+
+# QOS, OOM Killer value (-1000:1000)
+/proc/PID/oom_score_adj
+
+# probes
+ readiness  -   check traffic
+ liveness   -   check app
+ startup    -   check start
+
+ # port-forward
+ kubectl port-forward POD 8888:80 &
+
+ # edit configmap
+ kubectl edit cm CONFIGMAP
+ kubectl get cm CONFIGMAP -o yaml
+
+ # secrets
+kubectl create secret generic my-secret --from-literal=key=value
+
+kubectl get secret my-secret -o yaml
+
+# service
+# during creating service - automaticaly created endpoint
+kubectl get ep
+
+# PV / PVC
+# storageclasses
+kubectl get sc
+
+
+# etcd create snap
+kubectl exec -n kube-system etcd.POD -- /bin/sh -c 'ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key snapshot save /root/minikube-snapshot.db'
+
+# API server: get all resources
+kubectl api-resources
+
+# get status of all components
+kubectl get componentstatuses
+
+# get node info
+kubectl describe node NAME
+
+#completion
+kubectl completion  bash > k8s.sh
+#>>>
+alias k=kubectl
+if [[ $(type -t compopt) = "builtin" ]]; then
+    complete -o default -F __start_kubectl kubectl
+    complete -o default -F __start_kubectl k
+else
+    complete -o default -o nospace -F __start_kubectl kubectl
+    complete -o default -o nospace -F __start_kubectl k
+fi
+
+#>>>
+cp k8s.sh /etc/profile.d
+
+# get svc from user
+kubectl get service --as=system:serviceaccount:default:user

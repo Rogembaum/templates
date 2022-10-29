@@ -1,0 +1,12 @@
+# NAME            MAXSURGE   MAXUNAVAILABLE
+# my-deployment   1          0
+kubectl get deployment my-deployment -o custom-columns='NAME:.metadata.name,MAXSURGE:.spec.strategy.rollingUpdate.maxSurge,MAXUNAVAILABLE:.spec.strategy.rollingUpdate.maxUnavailable'
+
+
+# nginx:1.13
+kubectl get po <ИМЯ POD'а> -o=jsonpath='{.spec.containers[*].image}{"\n"}'
+
+
+# my-deployment-6f978fbc56-2kkwv  Initialized=True        Ready=True      ContainersReady=True    PodScheduled=True
+# my-deployment-6f978fbc56-r86q7  Initialized=True        Ready=True      ContainersReady=True    PodScheduled=True
+kubectl get po -o jsonpath='{range .items[*]}{"\n"}{@.metadata.name}{range @.status.conditions[*]}{"\t"}{@.type}={@.status}{end}{end}{"\n"}'

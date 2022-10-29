@@ -10,3 +10,9 @@ oc get useroaauthaccesstokens
 oc config set-context
 
 oc describe pod POD_NAME
+
+oc describe limits
+
+oc describe quota
+
+oc get quota

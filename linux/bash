@@ -1,0 +1,13 @@
+#!/bin/bash
+
+$$
+"pid"
+
+ls -la /proc/$$/ns
+"list of namespace where process is working"
+
+lsns
+"list namespace"
+
+nsenter
+"enter to namespace"

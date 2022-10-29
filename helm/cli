@@ -9,3 +9,20 @@ helm install NAME_SERVICE CHART_PATH --set variable=value
 helm uninstall NAME_SERVICE (require full access to Secrets with 3 ver)
 
 helm create NAME_SERVICE
+
+# add repo
+helm repo add stable https://charts.helm.sh/stable
+
+helm pull REPO_NAME/CHART_NAME --untar
+
+helm inspect values stable/kube-ops-view > values.yaml
+
+helm install kube-ops-view stable/kube-ops-view --namespace kube-system -f values.yaml
+
+# rendering yaml file
+helm template
+
+#set release name as rendering yaml
+helm template . --name-template abc
+
+# | indent - add some spaces before string

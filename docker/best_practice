@@ -65,3 +65,22 @@ minim privilege
 
 #17
 use own image + https://snyk.io
+
+#18
+daemon off
+
+#19
+rm -rf /var/lib/apt/lists/* and anothers caches
+
+#20
+set -ex - logs line by line
+
+#21
+# logging nginx
+ln -sf /dev/stdout /var/log/nginx/access.logs
+
+#22
+# docker run flags
+--default-ulimit
+--dns
+--insecure-registry

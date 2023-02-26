@@ -1,0 +1,120 @@
+# PREPARE DISK
+
+    # list
+    lsblk
+
+    # init
+    cfdisk
+
+    # create phisical vol
+    pvcreate /dev/sda1
+
+    # get pv
+    pvs
+    or
+    pvdisplay
+
+    # create volume group
+    vgcreate NAME /dev/sda1
+
+
+    # get vg
+    vgs
+    or
+    vgdisplay
+
+    # create logical vol
+    lvcreate -L 10G -n root lvm 
+    lvcreate -L 2G -n home lvm 
+    lvcreate -l 100%FREE -n opt lvm
+
+    # list logical vol
+    lvs
+
+
+    # create file system on volume
+    mkfs.ext4 /dev/lvm/root
+
+# MOUNT IMAGE
+
+    mkdir /mnt/centos
+    mount /dev/lvm/root /mnt/centos/
+    cd /mnt/centos/
+    curl https://mirror.yandex.ru/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2009.iso -o /mnt/centos/centos.isomkdir
+    mkdir /mnt/iso
+    mount /mnt/centos/centos.iso /mnt/iso/
+    mkdir /mnt/squash
+    mount /mnt/iso/LiveOS/squashfs.img /mnt/squash/
+    mkdir /mnt/rootfs/
+    mount /mnt/squash/LiveOS/rootfs.img /mnt/rootfs/
+
+    cp -rf /mnt/rootfs/* liveos/
+    cp /mnt/iso/Packages/ liveos/ -fr
+
+    cd liveos/
+    mount --rbind /sys sys
+    mount --rbind /proc proc
+    mount --rbind /dev dev
+
+    # перейти в файловую систему установщика
+    chroot . /bin/bash
+
+    # install yum
+    rpm -i --nodeps Packages/yum-3.4.3-168.el7.centos.noarch.rpm
+
+    # test yum
+    yum repolist
+
+    
+    mkdir /mnt/opt
+    mkdir /mnt/home
+    mount /dev/lvm/root /mnt/
+    mount /dev/lvm/opt /mnt/opt/
+    mount /dev/lvm/home /mnt/home/
+
+    yum install --installroot=/mnt Packages/*.rpm
+
+    # теперь переходим в конечную файловую систему
+    # по факту переходм в /dev/lvm/root
+    cd /mnt
+    mount --rbind /dev/ /dev/
+    mount --rbind /sys/ /sys/
+    mount --rbind /proc/ /proc/
+    
+    chroot . /bin/bash
+    source /etc/profile
+
+    # dns
+    echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+    # /etc/fstab 
+    /dev/lvm/root   /   ext4    defaults,noatime    0   0
+    /dev/lvm/opt   /opt   ext4    defaults,noatime    0   0
+    /dev/lvm/home   /home   ext4    defaults,noatime    0   0
+
+    # /etc/sysconfig/network-scripts/ifcfg-NAME
+        TYPE=Ethernet
+        BOOTPROTO=none
+        IPADDR=<IP-адрес>
+        GATEWAY=<IP шлюза>
+        PREFIX=24
+        DNS1=8.8.8.8
+        DEFROUTE=yes
+        NAME=eth0
+        DEVICE=eth0
+        ONBOOT=yes
+
+    # disable selinux /etc/selinux/config
+
+    # установить загрузщик
+    yum install grub2-pc -y && grub2-install /dev/sda && grub2-mkconfig -o /boot/grub2/grub.cfg
+
+    # set passwd user
+    passwd
+
+    reboot -f
+
+    exit
+    exit
+    reboot
+#bingo!

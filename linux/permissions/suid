@@ -1,0 +1,33 @@
+# run as with IWNER permission
+# only for binary file - NOT SCRIPTS
+
+# set SUID
+chmod u+s FILE
+
+# set GUID
+chmod g+s FOLDER
+
+# Sticky bit
+# set permission to remove file only for OWNER's file
+chmod +t FOLDER
+
+# umask
+# max for file 666
+# max for dir 777
+# example: create file with permission 0666 minus 0022 (def umask root)
+grep "umask" /etc/profile
+
+
+# acl
+setfacl
+getfacl
+cat /boot/config-3.10.0-1160.80.1.el7.x86_64 | grep ACL
+setfacl -m d:g:ops:rwx /opt/site.ru/
+
+
+
+# attr
+chattr
+lsattr
+i - immutable
+a - append

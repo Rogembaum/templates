@@ -1,1 +1,117 @@
 # install
+yum -y update
+yum -y install ansible sshpass git ca-certificate
+yum -y install ansible python-netaddr
+
+# git ceph
+cd /srv
+git clone https://github.com/ceph/ceph-ansible
+cd ceph-ansible
+git checkout stable-5.0
+
+#req
+pip install notario
+
+# ansible.cfg - disable PreferredAuthentications=publickey
+[ssh_connection]
+ssh_args = -o ControlMaster=auto -o ControlPersist=600s
+
+
+# inventory/group_vars/all.yml
+# откуда пакеты ставить
+ceph_origin: repository
+
+# тип репозитория
+ceph_repository: community
+
+# релиз
+ceph_stable_release: octopus
+
+# коннекты от клиентов
+public_network: "172.21.200.0/24"
+
+# взаимодействие компонентов кластера (синхронизация данных - лучше 10GB/s и больше ничего в сети не должно быть)
+cluster_network: "172.21.200.0/24"
+
+# критично, чтобы время было один на серверах
+ntp_service_enabled: true
+
+ntp_daemon_type: ntpd
+
+dashboard_enabled: False
+
+# каким образов будем хранить данные
+osd_objectstore: bluestore
+
+# collocated - создание на отдельном диске 2 раздела (данные и журнал)
+# non-collocated - данные и журнал на отд дисках (журнал лучше на SSD)
+# lvm - создание томов lvm под хранение данных, задействует все свободные диски, определить их тип и создать на них раздел
+osd_scenario: collocated
+
+# диск для данных явное указание
+devices:
+  - /dev/sdb
+
+ceph_conf_overrides:
+  global:
+    osd_pool_default_pg_num: 32
+   
+    
+    osd_pool_default_pgp_num: 32
+   
+    # jourlal size (default 10 GB)
+    osd_journal_size: 1024
+   
+    # replica's count
+    osd_pool_default_size: 3 
+  
+    # колво живых, при которых кластер работает
+    osd_pool_default_min_size:  2
+
+
+
+# hosts, monitor_address - принимать соедин от клиентов
+[mons]
+ingress-1.s000002.slurm.io monitor_address=172.21.200.5
+node-1.s000002.slurm.io monitor_address=172.21.200.6
+node-2.s000002.slurm.io monitor_address=172.21.200.7
+
+[osds]
+ingress-1.s000002.slurm.io
+node-1.s000002.slurm.io
+node-2.s000002.slurm.io
+
+[mgrs]
+ingress-1.s000002.slurm.io
+node-1.s000002.slurm.io
+node-2.s000002.slurm.io
+
+[mdss]
+ingress-1.s000002.slurm.io
+node-1.s000002.slurm.io
+node-2.s000002.slurm.io
+
+[grafana-server]
+node-2.s000002.slurm.io 
+
+
+# _deploy_cluster.sh
+#!/bin/sh
+d=$(date '+%Y.%m.%d_%H:%M')
+ANSIBLE_LOG_PATH="./deploy-$d.log"
+export ANSIBLE_LOG_PATH
+ansible-playbook -u s000000 -k -i inventory/hosts site.yml -b --diff
+
+# рачет кол-ва PG
+https://old.ceph.com/pgcalc/
+
+
+# https://docs.ceph.com/en/latest/rados/operations/monitoring/
+ceph health 	Здоровье
+ceph -s 	Статус всего
+ceph df 	статистика по занятому месту
+ceph auth list 	список прав клиентов
+ceph mon dump 	список мониторов
+ceph osd dump 	список пулов, osd и триггеров
+ceph osd tree 	список OSD с весам алгоритма CRUSH
+ceph tell osd.X bench 	тестирование скорости доступа к osd.X

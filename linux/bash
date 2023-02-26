@@ -1,13 +1,72 @@
 #!/bin/bash
 
+# pid
 $$
-"pid"
 
+# list of namespace where process is working
 ls -la /proc/$$/ns
-"list of namespace where process is working"
 
+
+# list namespace
 lsns
-"list namespace"
 
+# enter to namespace
 nsenter
-"enter to namespace"
+
+# list process with cmd,cpu
+ps -eo cmd,%cpu --sort=%cpu
+
+# comands
+    #find cmd
+    ctrl+r
+    
+    # rm left from cursor
+    ctrl+w
+    
+    #paste last arg
+    alt+.
+
+    #input cmds thr editor
+    ctrl+x+e
+
+    #repeat cmd
+    !!
+
+    #lists in cmd
+    {}
+
+    #repeat cmd with interval
+    watch
+
+    #return proc from SIGSTOP (ctrl+Z) to front
+    fg
+
+    #return proc from SIGSTOP (ctrl+Z) to back
+    bg
+
+    #get all stoped procs
+    jobs
+
+    # rm empty or commented strings
+    grep -v "^$\|^#"
+
+    # ignore register
+    grep -i
+
+    # . any symbol
+    cat /etc/ssh/ssh_config  | grep .  | grep -v "^#"
+
+    # out 2nd column
+    ps aux | grep sleep | grep -v grep | awk '{print $2}'
+
+    # set delimeter to : and out all usernames
+    cat /etc/passwd | awk -F: '{print $1,$3}' | column -t
+
+    # cng
+    sed -i "s/PermitRootLogin yes/PermitRootLogin no/" /etc/ssh/sshd_config
+
+    # recursive searching
+    grep -r "ssh" /etc
+
+    #
+    echo "123" | tee test{1..100}

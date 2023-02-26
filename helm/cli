@@ -13,6 +13,13 @@ helm create NAME_SERVICE
 # add repo
 helm repo add stable https://charts.helm.sh/stable
 
+helm repo list
+
+helm inspect readme ...
+
+helm search repo ibm-mqadvanced-server-prod
+
+
 helm pull REPO_NAME/CHART_NAME --untar
 
 helm inspect values stable/kube-ops-view > values.yaml
@@ -22,7 +29,7 @@ helm install kube-ops-view stable/kube-ops-view --namespace kube-system -f value
 # rendering yaml file
 helm template
 
-#set release name as rendering yaml
+# set release name as rendering yaml
 helm template . --name-template abc
 
 # | indent - add some spaces before string

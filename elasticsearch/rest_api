@@ -30,3 +30,29 @@ curl -XDELETE 'localhost:9200/index_name/type_name/document_id'
 
 # delete UNASSIGNED shards
 curl -XGET http://localhost:9200/_cat/shards | grep UNASSIGNED | awk {'print $1'} | xargs -i curl -XDELETE "http://localhost:9200/{}"
+
+
+# changing field types in elasticsearch
+curl -X PUT "http://localhost:9200/graylog_448?pretty" -H 'Content-Type: application/json' -d'
+{
+   "mappings": {
+      "properties": {
+         "RqUID": {
+           "type": "keyword"
+         }
+      }
+   }
+}
+'
+
+
+curl -X POST "http://localhost:9200/_reindex?pretty" -H 'Content-Type: application/json' -d'
+{
+"source": {
+"index": "graylog_447"
+},
+"dest": {
+"index": "graylog_448"
+}
+}
+'

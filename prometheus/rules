@@ -1,0 +1,2 @@
+Syntax-checking rules
+promtool check rules /path/to/example.rules.yml

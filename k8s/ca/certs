@@ -1,0 +1,12 @@
+CONFIGS: /etc/kubernetes/*.conf
+CERTS: /etc/kubernetes/pki/*
+
+kubeadm certs check-expiration
+
+mkdir /root/kubernetes-backup
+cp -p /etc/kubernetes/*.conf /root/kubernetes-backup/
+cp -pr /etc/kubernetes/pki /root/kubernetes-backup/
+
+kubeadm certs renew all
+
+# then you must restart apiserver(include etcd), controller-manager, scheduler

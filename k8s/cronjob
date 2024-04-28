@@ -1,0 +1,12 @@
+JOB
+--
+ - activeDeadLineSeconds - сколько времени есть на джобы, учитывая все перезапуски
+ - backoffLimit - сколько перезапусков можно сделать
+ - ttlSecondsAfterFinished  - как долго после завершения держать джоб в кластере
+
+CRONJOB
+--
+ - startingDeadlineSeconds(check every 10 sec) - если concurrencyPolicy(set: never) то через сколько ВСЁ-ТАКИ можно запустить новую
+ - concurrencyPolicy(default: allow) - что делать, если пора новую запускать, а старая еще не завершилась (forbid, replace)
+ - successfulJobsHistoryLimit - сколько старых джобов хранить
+ - failedJobsHistoryLimit - сколько старых джобов хранить

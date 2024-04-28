@@ -34,3 +34,14 @@ helm template
 helm template . --name-template abc
 
 # | indent - add some spaces before string
+
+# DIFF
+# Show a diff explaining what a helm upgrade would change.
+  helm diff upgrade my-release stable/postgresql --values values.yaml
+
+
+
+# How to set multiple values with helm?
+https://stackoverflow.com/questions/48316330/how-to-set-multiple-values-with-helm?answertab=oldest#comment83620072_48317022
+{{ tpl (toYaml .Values.monolith.http.ingress.tls.host | indent 6) . }}
+--set monolith.http.ingress.tls.host[0]=value-0 --set monolith.http.ingress.tls.host[1]=value-1

@@ -70,3 +70,23 @@ cp k8s.sh /etc/profile.d
 
 # get svc from user
 kubectl get service --as=system:serviceaccount:default:user
+
+# count pods on nodes
+kubectl get pods \
+  -A \
+  -o jsonpath='{range .items[?(@.spec.nodeName)]}{.spec.nodeName}{"\n"}{end}' \
+  | sort | uniq -c | sort -rn
+
+
+# delete stuck pod
+kubectl get pods --all-namespaces | grep Terminating | while read line; do
+  pod_name=$(echo $line | awk '{print $2}' ) \
+  name_space=$(echo $line | awk '{print $1}' ); \
+  kubectl delete pods $pod_name -n $name_space --grace-period=0 --force
+done
+
+# delete Evicted
+kubectl get po -A --all-namespaces -o json | jq  '.items[] | select(.status.reason!=null) | select(.status.reason | contains("Evicted")) | "kubectl delete po \(.metadata.name) -n \(.metadata.namespace)"' | xargs -n 1 bash -c
+
+# delete remove namespace status terminating
+NS=`kubectl get ns |grep Terminating | awk 'NR==1 {print $1}'` && kubectl get namespace "$NS" -o json   | tr -d "\n" | sed "s/\"finalizers\": \[[^]]\+\]/\"finalizers\": []/"   | kubectl replace --raw /api/v1/namespaces/$NS/finalize -f -

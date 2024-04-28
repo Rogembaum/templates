@@ -49,6 +49,7 @@ ps -eo cmd,%cpu --sort=%cpu
 
     # rm empty or commented strings
     grep -v "^$\|^#"
+    grep -v '^ *#'
 
     # ignore register
     grep -i
@@ -70,3 +71,52 @@ ps -eo cmd,%cpu --sort=%cpu
 
     #
     echo "123" | tee test{1..100}
+
+
+sftp -r -P PORT -i .\id_ed25519 root@IP:/remote/path local/patg
+
+
+
+grep -r "@domain.com" . | grep To | awk '{print $2}' | sort | uniq
+
+grep -Rnw '/path/to/somewhere/' -e 'pattern'
+
+grep -Ril "text-to-find-here" /
+
+
+###################
+### replace a string with sed in current and recursive subdirectories
+###################
+
+find . -type f -exec sed -i 's/foo/bar/g' {} +
+
+# To ignore hidden files (such as .git) you can pass the negation modifier -not -path '*/\.*', like this:
+find . -type f -not -path '*/\.*' -exec sed -i 's/foo/bar/g' {} +
+
+find . -type f -name "*.md" -exec sed -i 's/foo/bar/g' {} +
+
+
+
+##############################
+## Install security updates ##
+##############################
+apt-get -s dist-upgrade |grep "^Inst" |grep -i securi 
+
+or
+
+sudo unattended-upgrade --dry-run -d
+
+or
+
+/usr/lib/update-notifier/apt-check -p
+
+Show all upgradeable packages
+
+apt-get -s dist-upgrade | grep "^Inst"
+
+Install security updates only
+
+apt-get -s dist-upgrade | grep "^Inst" | 
+    grep -i securi | awk -F " " {'print $2'} | 
+    xargs apt-get install
+#-----------------------------------------

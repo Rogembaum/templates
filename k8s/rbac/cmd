@@ -1,0 +1,10 @@
+
+
+# получить список всех servic'ов в namespace'e default от имени пользователя user
+kubectl get service --as=system:serviceaccount:default:user
+
+# получить от имени этого же пользователя список сервисов в namesapce'e kube-system
+kubectl get service --as=system:serviceaccount:default:user --namespace kube-system
+
+# От имени пользователя user удалите service kubernetes в namesapce'e default
+kubectl delete service kubernetes --as=system:serviceaccount:default:user

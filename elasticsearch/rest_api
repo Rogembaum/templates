@@ -56,3 +56,74 @@ curl -X POST "http://localhost:9200/_reindex?pretty" -H 'Content-Type: applicati
 }
 }
 '
+
+
+
+
+# Creating index template to configure count of replicas for ALL indexes (in case with only ONE node)
+PUT _template/all-indexes-replicas-zero
+{
+  "order": 121,
+  "index_patterns": [
+    "*"
+  ],
+  "settings": {
+    "index": {
+      "number_of_replicas": "0"
+    }
+  },
+  "aliases": {},
+  "mappings": {}
+}
+
+
+# Creating index lifecycle policy template to configure cold phase (example: 30 days)
+PUT _ilm/policy/warp-ilm
+{
+  "policy": {
+    "phases": {
+      "hot": {
+        "actions": {
+          "rollover": {
+            "max_age": "30d",
+            "max_primary_shard_size": "50gb"
+          },
+          "set_priority": {
+            "priority": 100
+          }
+        },
+        "min_age": "0ms"
+      },
+      "cold": {
+        "min_age": "30d",
+        "actions": {
+          "set_priority": {
+            "priority": 101
+          },
+          "readonly": {}
+        }
+      }
+    }
+  }
+}
+
+
+# Create index template for warp services and put it template to warp-ilm (life-cycle manager)
+PUT _index_template/warp-services
+{
+  "priority": 102,
+  "template": {
+    "settings": {
+      "index": {
+        "lifecycle": {
+          "name": "warp-ilm"
+        },
+        "number_of_replicas": "0"
+      }
+    }
+  },
+  "index_patterns": [
+    "*-202*"
+  ],
+  "composed_of": []
+}

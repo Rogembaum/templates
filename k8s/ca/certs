@@ -5,7 +5,6 @@ kubeadm certs check-expiration
 
 mkdir /root/kubernetes-backup
 cp -p /etc/kubernetes/*.conf /root/kubernetes-backup/
-cp -pr /etc/kubernetes/pki /root/kubernetes-backup/
 
 kubeadm certs renew all
 

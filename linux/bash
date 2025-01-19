@@ -83,6 +83,8 @@ grep -Rnw '/path/to/somewhere/' -e 'pattern'
 
 grep -Ril "text-to-find-here" /
 
+grep -v "#" /etc/apt/sources.list.d/ubuntu.sources
+
 
 ###################
 ### replace a string with sed in current and recursive subdirectories
@@ -120,3 +122,48 @@ apt-get -s dist-upgrade | grep "^Inst" |
     grep -i securi | awk -F " " {'print $2'} | 
     xargs apt-get install
 #-----------------------------------------
+
+# how many packets installed in os
+dpkg -l | grep ^ii | wc -l
+dpkg --list
+
+# which packet include binary file
+dpkg -S /bin/ls
+or
+dpkg -S /etc/nginx.conf
+
+# how many files in packet
+dpkg -L coreutils
+
+# search in local packege cache
+apt-cache search apache
+
+
+
+
+# rm protect you from delete /, but this is not work for /*
+rm -rf /
+
+# run login shell as the target user
+# for example for root /BIN/BASH
+# cat /etc/passwd | grep root
+# root:x:0:0:root:/root:/bin/bash
+sudo -i
+LIKE 
+sudo /bin/bash
+
+# use target user's shell
+# This account is currently not available.
+# cat /etc/passwd | grep daemon
+# daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+sudo -i -u daemon
+
+# use current user's shell
+# cat /etc/passwd | grep ray
+# ray:x:1000:1000:,,,:/home/ray:/bin/bash
+sudo -s -u daemon
+whoami
+daemon
+
+# to get distr version
+lsb_release  -a

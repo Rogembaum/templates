@@ -1,0 +1,10 @@
+# Check if TEMPORAL_CLI_NAMESPACE is set
+echo $TEMPORAL_CLI_NAMESPACE
+
+# If it's set to "default", unset it or change it
+unset TEMPORAL_CLI_NAMESPACE
+# OR
+export TEMPORAL_CLI_NAMESPACE=test
+
+# Then try your command again
+tctl namespace register test

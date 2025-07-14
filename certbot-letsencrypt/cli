@@ -1,0 +1,1 @@
+certbot certonly --manual -d DOMAIN --preferred-challenges dns

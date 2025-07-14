@@ -1,0 +1,1 @@
+helm repo add --username NAME --password PASS REPO https://gitlab.NAME.tech/api/v4/projects/PROJECT_ID/packages/helm/stable

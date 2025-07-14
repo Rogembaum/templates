@@ -1,2 +1,56 @@
-Syntax-checking rules
+# Syntax-checking rules
 promtool check rules /path/to/example.rules.yml
+
+# Reload config
+curl -X POST http://127.0.0.1:9090/-/reload
+wget --post-data='reload' -O - http://127.0.0.1:9090/-/reload
+
+# Test alert
+curl -w '\n' -i --user 'admin:admin' \
+  --header 'Content-Type: application/json' \
+  --data '[{"labels":{"alertname":"test_opsgenie", "team":"opsgenie"},"endsAt":"2024-05-01T00:10:53-03:00"}]' \
+  http://localhost:9093/api/v1/alerts
+
+  #!/bin/bash
+
+name=$RANDOM
+url='http://localhost:9093/api/v1/alerts'
+
+echo "firing up alert $name" 
+
+# change url o
+curl -XPOST $url -d "[{ 
+	\"status\": \"firing\",
+	\"labels\": {
+		\"alertname\": \"$name\",
+		\"service\": \"my-service\",
+		\"severity\":\"critical\",
+		\"instance\": \"$name.example.net\"
+	},
+	\"annotations\": {
+		\"summary\": \"High latency is high!\"
+	},
+	\"generatorURL\": \"http://prometheus.int.example.net/<generating_expression>\"
+}]"
+
+echo ""
+
+echo "press enter to resolve alert"
+read
+
+echo "sending resolve"
+curl -XPOST $url -d "[{ 
+	\"status\": \"resolved\",
+	\"labels\": {
+		\"alertname\": \"$name\",
+		\"service\": \"my-service\",
+		\"severity\":\"warning\",
+		\"instance\": \"$name.example.net\"
+	},
+	\"annotations\": {
+		\"summary\": \"High latency is high!\"
+	},
+	\"generatorURL\": \"http://prometheus.int.example.net/<generating_expression>\"
+}]"
+
+echo ""

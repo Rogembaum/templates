@@ -1,0 +1,7 @@
+export VAULT_TOKEN=
+export VAULT_ADDR=
+
+vault kv get SECRET_PATH
+
+kubectl get externalsecrets -n external-secrets
+kubectl get ClusterSecretStore

@@ -9,3 +9,12 @@ cp -p /etc/kubernetes/*.conf /root/kubernetes-backup/
 kubeadm certs renew all
 
 # then you must restart apiserver(include etcd), controller-manager, scheduler
+
+
+
+cp -f /etc/kubernetes/admin.conf $HOME/.kube/config 
+
+ls -lah /etc/kubernetes/admin.conf ; sha256sum /etc/kubernetes/admin.conf
+
+ls -lah /root/.kube/config ; sha256sum /root/.kube/config
+

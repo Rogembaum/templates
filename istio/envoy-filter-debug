@@ -1,0 +1,7 @@
+curl http://localhost:15000/config_dump
+
+
+kubectl exec -it your-pod-name -c istio-proxy -n your-namespace -- curl http://localhost:15000/config_dump | jq '.static_resources.filters[] | select(.name=="envoy.filters.http.cors")'
+
+
+./istioctl proxy-config routes istio-ingressgateway-POD -n istio-ingress  --name http.80 -o json

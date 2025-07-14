@@ -8,3 +8,44 @@ kubectl get service --as=system:serviceaccount:default:user --namespace kube-sys
 
 # От имени пользователя user удалите service kubernetes в namesapce'e default
 kubectl delete service kubernetes --as=system:serviceaccount:default:user
+
+
+
+
+
+################################################
+$ cat test_user.sh
+#!/bin/bash
+
+namespace=default
+resources="pods deployments"
+user=john
+
+echo "=== NAMESPACE: ${namespace} ==="
+for verb in create delete get list patch update watch; do
+    echo "-- ${verb} --"
+    for resource in ${resources}; do
+        echo -n "${resource}: "
+        kubectl auth can-i ${verb} ${resource} -n ${namespace} --as=${user}
+    done
+done
+
+; $ ./test_user.sh
+; === NAMESPACE: default ===
+; -- create --
+; pods: no
+; deployments: no
+; -- delete --
+; pods: no
+; deployments: no
+; -- get --
+; pods: yes
+; deployments: yes
+; -- list --
+; pods: yes
+; deployments: yes
+
+
+
+kubectl auth can-i get services -n demo --as=system:servicea
+ccount:kube-system:developer-sa

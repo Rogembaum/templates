@@ -16,8 +16,14 @@ def is_isogram(string):
             if string[i].lower() == arr[j].lower():
                 return False
     return True
-print(is_isogram("moOse"))
+print(is_isogram("asdfghjklqwertyuio"))
 
 # set(string.lower()): A set is a collection of unique elements. When you apply set() to the lowercase version of the string, it removes any duplicate characters. So, if the string has repeating characters, the resulting set will contain only one occurrence of each character.
 def is_isogram_refactor(string):
     return len(string) == len(set(string.lower()))
+
+def is_isogram_refactor_2(string):
+    string = string.lower()
+    for letter in string:
+        if string.count(letter) > 1: return False
+    return True

@@ -128,7 +128,7 @@ dpkg -l | grep ^ii | wc -l
 dpkg --list
 
 # which packet include binary file
-dpkg -S /bin/ls
+dpkg -S /usr/bin/ls
 or
 dpkg -S /etc/nginx.conf
 

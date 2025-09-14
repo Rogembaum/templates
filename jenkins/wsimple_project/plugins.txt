@@ -1,0 +1,26 @@
+# Core pipeline
+workflow-aggregator
+pipeline-stage-view
+workflow-durable-task-step
+credentials-binding
+git
+github
+ssh-agent
+matrix-auth
+
+# UI & удобства
+blueocean
+ansicolor
+timestamper
+warnings-ng
+
+# Docker
+docker-workflow
+docker-commons
+
+# SCM helpers
+git-client
+branch-api
+
+# Config as Code (JCasC)
+configuration-as-code

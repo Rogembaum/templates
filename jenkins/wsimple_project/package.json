@@ -1,0 +1,1 @@
+{"name":"simple-node-app","version":"1.0.0","description":"A simple Node.js application for Jenkins pipeline testing","main":"app.js","scripts":{"start":"node app.js","test":"node test.js"},"dependencies":{"express":"^4.18.2"},"keywords":["nodejs","express","jenkins"],"author":"","license":"MIT"}

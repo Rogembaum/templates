@@ -1,0 +1,37 @@
+﻿pipeline {
+  agent any
+  options { timestamps(); ansiColor("xterm") }
+
+  environment {
+    DOCKER_HOST = "tcp://host.docker.internal:2375"
+  }
+
+  stages {
+    stage("Preflight") {
+      steps {
+        sh "pwd && ls -la"
+      }
+    }
+
+    stage("Install deps") {
+      steps {
+        sh "npm install"
+      }
+    }
+
+    stage("Test") {
+      steps {
+        sh "npm test"
+      }
+    }
+
+    stage("Docker Build & Smoke") {
+      steps {
+        sh "docker build -t myapp:${BUILD_NUMBER} ."
+        sh "docker run -d --name myapp_${BUILD_NUMBER} -p 3000:3000 myapp:${BUILD_NUMBER}"
+        sh "sleep 5 && docker logs myapp_${BUILD_NUMBER}"
+        sh "docker rm -f myapp_${BUILD_NUMBER}"
+      }
+    }
+  }
+}

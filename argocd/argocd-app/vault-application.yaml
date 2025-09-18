@@ -16,12 +16,17 @@ spec:
         global:
           enabled: true
           tlsDisable: true
+          # Disable TLS completely
+          tls:
+            enabled: false
         
         server:
           enabled: true
           image:
             repository: "hashicorp/vault"
             tag: "1.15.2"
+          # Disable TLS on server level
+          tlsDisable: true
           
           # Or for production:
           standalone:

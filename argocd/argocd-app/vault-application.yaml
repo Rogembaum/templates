@@ -31,7 +31,7 @@ spec:
               listener "tcp" {
                 address = "[::]:8200"
                 cluster_address = "[::]:8201"
-                tls_disable = 0
+                tls_disable = 1
               }
               storage "file" {
                 path = "/vault/data"

@@ -72,6 +72,39 @@ spec:
           image:
             repository: "hashicorp/vault-k8s"
             tag: "1.1.0"
+          
+          # Agent injector configuration
+          agentInjector:
+            enabled: true
+            replicas: 1
+            
+            # Webhook configuration
+            webhook:
+              enabled: true
+              port: 8080
+              
+            # Resource limits and requests
+            resources:
+              limits:
+                cpu: 200m
+                memory: 256Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+                
+            # Security context
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 1000
+              runAsGroup: 1000
+              fsGroup: 1000
+              
+            # ConfigMap configuration for agent injector
+            configMap:
+              enabled: true
+              data:
+                VAULT_ADDR: "http://vault.vault.svc.cluster.local:8200"
+                VAULT_SKIP_VERIFY: "true"
   
   destination:
     server: https://kubernetes.default.svc

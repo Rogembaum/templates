@@ -15,7 +15,7 @@ spec:
       values: |
         global:
           enabled: true
-          tlsDisable: true  # Disable TLS for dev mode
+          tlsDisable: false
         
         server:
           enabled: true
@@ -23,36 +23,23 @@ spec:
             repository: "hashicorp/vault"
             tag: "1.15.2"
           
-          # Dev mode for demonstration (NOT for production!)
-          dev:
+          # Or for production:
+          standalone:
             enabled: true
-            devRootToken: "root"
-            
-          # Authentication methods for UI
-          auth:
-            userpass:
-              enabled: true
-              description: "Userpass authentication for UI"
-          
-          # Enable UI for dev mode
+            config: |
+              ui = true
+              listener "tcp" {
+                address = "[::]:8200"
+                cluster_address = "[::]:8201"
+                tls_disable = 0
+              }
+              storage "file" {
+                path = "/vault/data"
+              }
+
+          # Enable UI
           ui:
             enabled: true
-          
-          # Or for production:
-          # dev:
-          #   enabled: false
-          # standalone:
-          #   enabled: true
-          #   config: |
-          #     ui = true
-          #     listener "tcp" {
-          #       address = "[::]:8200"
-          #       cluster_address = "[::]:8201"
-          #       tls_disable = true
-          #     }
-          #     storage "file" {
-          #       path = "/vault/data"
-          #     }
           
           service:
             enabled: true
@@ -84,11 +71,6 @@ spec:
             enabled: true
             replicas: 1
             
-            # Webhook configuration
-            webhook:
-              enabled: true
-              port: 8080
-              
             # Resource limits and requests
             resources:
               limits:
@@ -105,13 +87,6 @@ spec:
               runAsGroup: 1000
               fsGroup: 1000
               
-            # ConfigMap configuration for agent injector
-            configMap:
-              enabled: true
-              data:
-                VAULT_ADDR: "http://vault.vault.svc.cluster.local:8200"
-                VAULT_SKIP_VERIFY: "true"
-                
             # Service account for agent injector
             serviceAccount:
               create: true

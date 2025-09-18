@@ -15,7 +15,7 @@ spec:
       values: |
         global:
           enabled: true
-          tlsDisable: false
+          tlsDisable: true  # Disable TLS for dev mode
         
         server:
           enabled: true

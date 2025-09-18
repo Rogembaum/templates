@@ -28,6 +28,10 @@ spec:
             enabled: true
             devRootToken: "root"
           
+          # Enable UI for dev mode
+          ui:
+            enabled: true
+          
           # Or for production:
           # dev:
           #   enabled: false

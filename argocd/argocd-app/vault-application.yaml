@@ -68,7 +68,7 @@ spec:
                   - vault.example.com
         
         injector:
-          enabled: false
+          enabled: true
           image:
             repository: "hashicorp/vault-k8s"
             tag: "1.1.0"

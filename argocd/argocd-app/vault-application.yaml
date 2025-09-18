@@ -41,6 +41,8 @@ spec:
               storage "file" {
                 path = "/vault/data"
               }
+              # Development mode (auto-unseal)
+              # disable_mlock = true
 
           # Enable UI
           ui:
@@ -66,7 +68,7 @@ spec:
                   - vault.example.com
         
         injector:
-          enabled: true
+          enabled: false
           image:
             repository: "hashicorp/vault-k8s"
             tag: "1.1.0"

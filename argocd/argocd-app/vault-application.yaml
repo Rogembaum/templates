@@ -1,0 +1,82 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: my-project
+  source:
+    repoURL: https://helm.releases.hashicorp.com
+    chart: vault
+    targetRevision: 0.25.0
+    helm:
+      values: |
+        global:
+          enabled: true
+          tlsDisable: false
+        
+        server:
+          enabled: true
+          image:
+            repository: "hashicorp/vault"
+            tag: "1.15.2"
+          
+          # Dev mode for demonstration (NOT for production!)
+          dev:
+            enabled: true
+            devRootToken: "root"
+          
+          # Or for production:
+          # dev:
+          #   enabled: false
+          # standalone:
+          #   enabled: true
+          #   config: |
+          #     ui = true
+          #     listener "tcp" {
+          #       address = "[::]:8200"
+          #       cluster_address = "[::]:8201"
+          #       tls_disable = true
+          #     }
+          #     storage "file" {
+          #       path = "/vault/data"
+          #     }
+          
+          service:
+            enabled: true
+            type: ClusterIP
+            port: 8200
+          
+          ingress:
+            enabled: true
+            ingressClassName: "nginx"
+            hosts:
+              - host: vault.example.com
+                paths:
+                  - path: /
+                    pathType: Prefix
+            tls:
+              - secretName: vault-tls
+                hosts:
+                  - vault.example.com
+        
+        injector:
+          enabled: true
+          image:
+            repository: "hashicorp/vault-k8s"
+            tag: "1.1.0"
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vault
+  
+  syncPolicy:
+    automated:
+      prune: true # Automatically prune resources if they are not present in the git
+      selfHeal: true # Automatically heal resources if they are not present in the git,ex with kubectl
+    syncOptions:
+      - CreateNamespace=true # Create namespace if it does not exist
+      - PrunePropagationPolicy=foreground # Prune propagation policy:ex. first delete resources in the namespace, then delete the namespace
+      - PruneLast=true # Prune last, ex. delete all resources in the namespace, then delete the namespace

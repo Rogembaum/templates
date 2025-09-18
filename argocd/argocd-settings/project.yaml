@@ -1,0 +1,143 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: my-project
+  namespace: argocd
+  finalizers:
+    - argoproj.io/resources-finalizer
+spec:
+  description: "ArgoCD project example with cluster and repository configuration"
+  
+  sourceRepos:
+    - 'https://github.com/Rogembaum/templates.git'
+    - 'https://helm.releases.hashicorp.com'
+    - 'https://charts.external-secrets.io'
+
+  
+  # Destinations (clusters and namespaces)
+  destinations:
+    # Local cluster
+    - namespace: 'default'
+      server: 'https://kubernetes.default.svc'
+    - namespace: 'vault'
+      server: 'https://kubernetes.default.svc'
+    # - namespace: 'production'
+    #   server: 'https://kubernetes.default.svc'
+    # - namespace: 'staging'
+    #   server: 'https://kubernetes.default.svc'
+  
+  # Allowed cluster resource types
+  clusterResourceWhitelist:
+    - group: ''
+      kind: 'Namespace'
+    - group: 'rbac.authorization.k8s.io'
+      kind: 'ClusterRole'
+    - group: 'rbac.authorization.k8s.io'
+      kind: 'ClusterRoleBinding'
+    - group: 'apiextensions.k8s.io'
+      kind: 'CustomResourceDefinition'
+    - group: 'argoproj.io'
+      kind: 'Application'
+  
+  # Allowed namespace resource types
+  namespaceResourceWhitelist:
+    - group: ''
+      kind: 'ConfigMap'
+    - group: ''
+      kind: 'Secret'
+    - group: ''
+      kind: 'Service'
+    - group: ''
+      kind: 'Deployment'
+    - group: ''
+      kind: 'StatefulSet'
+    - group: ''
+      kind: 'Ingress'
+    - group: 'apps'
+      kind: 'Deployment'
+    - group: 'apps'
+      kind: 'StatefulSet'
+    - group: 'networking.k8s.io'
+      kind: 'Ingress'
+    - group: 'external-secrets.io'
+      kind: 'ExternalSecret'
+    - group: 'external-secrets.io'
+      kind: 'SecretStore'
+  
+  # Project roles
+  roles:
+    - name: admin
+      description: "Project administrator"
+      policies:
+        - p, proj:my-project:admin, applications, *, my-project/*, allow
+        - p, proj:my-project:admin, repositories, *, *, allow
+        - p, proj:my-project:admin, clusters, *, *, allow
+      groups:
+        - 'argocd-admins'
+    
+    - name: developer
+      description: "Project developer"
+      policies:
+        - p, proj:my-project:developer, applications, get, my-project/*, allow
+        - p, proj:my-project:developer, applications, sync, my-project/*, allow
+        - p, proj:my-project:developer, applications, action/*, my-project/*, allow
+      groups:
+        - 'argocd-developers'
+    
+    - name: readonly
+      description: "Read-only access"
+      policies:
+        - p, proj:my-project:readonly, applications, get, my-project/*, allow
+      groups:
+        - 'argocd-readonly'
+  
+  # Synchronization settings
+  syncWindows:
+    - kind: allow
+      schedule: '0 9 * * 1-5'  # Mon-Fri from 9:00
+      duration: '8h'
+      applications:
+        - 'my-project/production-*'
+      namespaces:
+        - 'production'
+      clusters:
+        - 'https://external-cluster.example.com:6443'
+    
+    - kind: deny
+      schedule: '0 17 * * 1-5'  # Mon-Fri from 17:00
+      duration: '15h'
+      applications:
+        - 'my-project/production-*'
+      namespaces:
+        - 'production'
+      clusters:
+        - 'https://external-cluster.example.com:6443'
+  
+  # Orphaned resources settings
+  orphanedResources:
+    warn: true
+    ignore:
+      - group: 'apps'
+        kind: 'Deployment'
+        name: 'legacy-app'
+      - group: ''
+        kind: 'Service'
+        name: 'old-service'
+      # System resources
+      - group: 'kube-system'
+        kind: 'Deployment'
+      - group: 'kube-system'
+        kind: 'Service'
+    # Resources from other operators
+      - group: 'monitoring.coreos.com'
+        kind: 'Prometheus'
+      - group: 'monitoring.coreos.com'
+        kind: 'ServiceMonitor'
+      # All resources in system namespaces
+      - group: ''
+        kind: 'Namespace'
+        name: 'kube-system'
+      - group: ''
+        kind: 'Namespace'
+        name: 'monitoring'
+

@@ -48,12 +48,11 @@ spec:
             enabled: true
             type: ClusterIP
             port: 8200
-          
           ingress:
             enabled: true
             ingressClassName: "nginx"
             annotations:
-              nginx.ingress.kubernetes.io/rewrite-target: /
+              nginx.ingress.kubernetes.io/rewrite-target: "/"
             hosts:
               - host: vault.example.com
                 paths:

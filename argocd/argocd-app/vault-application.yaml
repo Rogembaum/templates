@@ -15,7 +15,7 @@ spec:
       values: |
         global:
           enabled: true
-          tlsDisable: false
+          tlsDisable: true
         
         server:
           enabled: true
@@ -32,10 +32,28 @@ spec:
                 address = "[::]:8200"
                 cluster_address = "[::]:8201"
                 tls_disable = 0
+                tls_cert_file = "/vault/tls/tls.crt"
+                tls_key_file = "/vault/tls/tls.key"
               }
               storage "file" {
                 path = "/vault/data"
               }
+            
+            # Volume for TLS certificates
+            volumes:
+              - name: vault-tls
+                secret:
+                  secretName: vault-tls
+                  items:
+                    - key: tls.crt
+                      path: tls.crt
+                    - key: tls.key
+                      path: tls.key
+            
+            volumeMounts:
+              - name: vault-tls
+                mountPath: /vault/tls
+                readOnly: true
 
           # Enable UI
           ui:

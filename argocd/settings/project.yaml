@@ -1,0 +1,100 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: argo-cd-settings
+  namespace: argocd
+  finalizers:
+    - argoproj.io/resources-finalizer
+spec:
+  description: "ArgoCD settings project for infrastructure"
+  sourceRepos:
+    - 'https://github.com/Rogembaum/templates.git'  
+  destinations:
+      - namespace: "*"
+        server: "*"
+        name: "*"
+  clusterResourceBlacklist:
+      - group: '*'
+        kind: '*'
+  namespaceResourceWhitelist:
+    - group: argoproj.io
+      kind: Application
+    - group: argoproj.io
+      kind: ApplicationSet
+  # Project roles
+  roles:
+    - name: admin
+      description: "Project administrator"
+      policies:
+        - p, proj:argo-cd-settings:admin, applications, *, argo-cd-settings/*, allow
+        - p, proj:argo-cd-settings:admin, repositories, *, *, allow
+        - p, proj:argo-cd-settings:admin, clusters, *, *, allow
+      groups:
+        - 'argocd-admins'
+    
+    - name: developer
+      description: "Project developer"
+      policies:
+        - p, proj:argo-cd-settings:developer, applications, get, argo-cd-settings/*, allow
+        - p, proj:argo-cd-settings:developer, applications, sync, argo-cd-settings/*, allow
+        - p, proj:argo-cd-settings:developer, applications, action/*, argo-cd-settings/*, allow
+      groups:
+        - 'argocd-developers'
+    
+    - name: readonly
+      description: "Read-only access"
+      policies:
+        - p, proj:argo-cd-settings:readonly, applications, get, argo-cd-settings/*, allow
+      groups:
+        - 'argocd-readonly'
+  
+  # Synchronization settings
+  syncWindows:
+    - kind: allow
+      schedule: '0 9 * * 1-5'  # Mon-Fri from 9:00
+      duration: '8h'
+      applications:
+        - 'argo-cd-settings/production-*'
+      namespaces:
+        - 'production'
+      clusters:
+        - 'https://external-cluster.example.com:6443'
+    
+    - kind: deny
+      schedule: '0 17 * * 1-5'  # Mon-Fri from 17:00
+      duration: '15h'
+      applications:
+        - 'argo-cd-settings/production-*'
+      namespaces:
+        - 'production'
+      clusters:
+        - 'https://external-cluster.example.com:6443'
+  
+  # Orphaned resources settings
+  orphanedResources:
+    warn: true
+    ignore:
+      - group: 'apps'
+        kind: 'Deployment'
+        name: 'legacy-app'
+      - group: ''
+        kind: 'Service'
+        name: 'old-service'
+      # System resources
+      - group: 'kube-system'
+        kind: 'Deployment'
+      - group: 'kube-system'
+        kind: 'Service'
+    # Resources from other operators
+      - group: 'monitoring.coreos.com'
+        kind: 'Prometheus'
+      - group: 'monitoring.coreos.com'
+        kind: 'ServiceMonitor'
+      # All resources in system namespaces
+      - group: ''
+        kind: 'Namespace'
+        name: 'kube-system'
+      - group: ''
+        kind: 'Namespace'
+        name: 'monitoring'
+

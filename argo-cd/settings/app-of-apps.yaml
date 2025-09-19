@@ -2,21 +2,21 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: app-of-apps
-  namespace: argocd
+  namespace: argo-cd
   finalizers:
-    - resources-finalizer.argocd.argoproj.io
+    - resources-finalizer.argo-cd.argoproj.io
 spec:
   project: argo-cd-settings
   source:
     repoURL: https://github.com/Rogembaum/templates.git
     targetRevision: HEAD
-    path: argocd/apps
+    path: argo-cd/apps
     directory:
       recurse: true
       include: "*.yaml"
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
+    namespace: argo-cd
   syncPolicy:
     automated:
       prune: true

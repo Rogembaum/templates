@@ -2,11 +2,11 @@ apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: argo-cd-settings
-  namespace: argocd
+  namespace: argo-cd
   finalizers:
     - argoproj.io/resources-finalizer
 spec:
-  description: "ArgoCD settings project for infrastructure"
+  description: "argo-cd settings project for infrastructure"
   sourceRepos:
     # Git repositories
     - 'https://github.com/Rogembaum/templates.git'

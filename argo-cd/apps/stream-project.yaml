@@ -2,11 +2,11 @@ apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: stream-project
-  namespace: argocd
+  namespace: argo-cd
   finalizers:
     - argoproj.io/resources-finalizer
 spec:
-  description: "ArgoCD settings project for stream"
+  description: "argo-cd settings project for stream"
   
   sourceRepos:
     - 'https://helm.releases.hashicorp.com'
@@ -28,7 +28,7 @@ spec:
         - p, proj:stream-project-1:admin, repositories, *, *, allow
         - p, proj:stream-project-1:admin, clusters, *, *, allow
       groups:
-        - 'argocd-admins'
+        - 'argo-cd-admins'
     
     - name: developer
       description: "Project developer"
@@ -37,14 +37,14 @@ spec:
         - p, proj:stream-project-1:developer, applications, sync, stream-project-1/*, allow
         - p, proj:stream-project-1:developer, applications, action/*, stream-project-1/*, allow
       groups:
-        - 'argocd-developers'
+        - 'argo-cd-developers'
     
     - name: readonly
       description: "Read-only access"
       policies:
         - p, proj:stream-project-1:readonly, applications, get, stream-project-1/*, allow
       groups:
-        - 'argocd-readonly'
+        - 'argo-cd-readonly'
   
   # Synchronization settings
   syncWindows:

@@ -9,11 +9,11 @@ spec:
   project: argo-cd-settings
   source:
     repoURL: https://github.com/Rogembaum/templates.git
-    targetRevision: master
+    targetRevision: HEAD
     path: argocd/apps
     directory:
       recurse: true
-      include: "apps/*.yaml,projects/*.yaml"
+      include: "*.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

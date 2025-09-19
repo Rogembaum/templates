@@ -22,6 +22,9 @@ This directory contains the initial configuration files for setting up ArgoCD wi
 
 ### Prerequisites
 1. ArgoCD must be installed and running in your Kubernetes cluster
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
 2. `kubectl` configured to access your cluster
 3. Access to the ArgoCD namespace (`argocd`)
 
@@ -158,3 +161,10 @@ For issues and questions:
 - Check ArgoCD documentation: https://argo-cd.readthedocs.io/
 - Review Kubernetes logs for detailed error information
 - Ensure all prerequisites are met before applying configurations
+
+
+kubectl delete appproject argo-cd-settings -n argocd
+
+kubectl patch appproject argo-cd-settings -n argocd --type=json -p='[{"op": "remove", "path": "/metadata/finalizers"}]'
+
+kubectl delete appproject argo-cd-settings -n argocd --ignore-not-found

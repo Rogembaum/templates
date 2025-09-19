@@ -21,9 +21,6 @@ spec:
   clusterResourceBlacklist:
       - group: '*'
         kind: '*'
-  clusterResourceWhitelist:
-    - group: argoproj.io
-      kind: AppProject
   namespaceResourceWhitelist:
     - group: argoproj.io
       kind: Application

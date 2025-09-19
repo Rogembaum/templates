@@ -1,0 +1,114 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: my-project
+  source:
+    repoURL: https://helm.releases.hashicorp.com
+    chart: vault
+    targetRevision: 0.25.0
+    helm:
+      values: |
+        global:
+          enabled: true
+          tlsDisable: true
+          # Disable TLS completely
+          tls:
+            enabled: false
+        
+        server:
+          enabled: true
+          image:
+            repository: "hashicorp/vault"
+            tag: "1.15.2"
+          # Disable TLS on server level
+          tlsDisable: true
+          
+          # Or for production:
+          standalone:
+            enabled: true
+            config: |
+              ui = true
+              listener "tcp" {
+                address = "[::]:8200"
+                cluster_address = "[::]:8201"
+                tls_disable = 1
+              }
+              storage "file" {
+                path = "/vault/data"
+              }
+              # Development mode (auto-unseal)
+              # disable_mlock = true
+
+          # Enable UI
+          ui:
+            enabled: true
+          
+          service:
+            enabled: true
+            type: ClusterIP
+            port: 8200
+          ingress:
+            enabled: false
+            ingressClassName: "nginx"
+            annotations:
+              nginx.ingress.kubernetes.io/rewrite-target: "/"
+            hosts:
+              - host: vault.example.com
+                paths:
+                  - path: "/"
+                    pathType: "Prefix"
+            tls:
+              - secretName: vault-tls
+                hosts:
+                  - vault.example.com
+        
+        injector:
+          enabled: true
+          image:
+            repository: "hashicorp/vault-k8s"
+            tag: "1.1.0"
+          
+          # Agent injector configuration
+          agentInjector:
+            enabled: true
+            replicas: 1
+            
+            # Resource limits and requests
+            resources:
+              limits:
+                cpu: 200m
+                memory: 256Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+                
+            # Security context
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 1000
+              runAsGroup: 1000
+              fsGroup: 1000
+              
+            # Service account for agent injector
+            serviceAccount:
+              create: true
+              name: vault-agent-injector
+              annotations: {}
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vault
+  
+  syncPolicy:
+    automated:
+      prune: true # Automatically prune resources if they are not present in the git
+      selfHeal: true # Automatically heal resources if they are not present in the git,ex with kubectl
+    syncOptions:
+      - CreateNamespace=true # Create namespace if it does not exist
+      - PrunePropagationPolicy=foreground # Prune propagation policy:ex. first delete resources in the namespace, then delete the namespace
+      - PruneLast=true # Prune last, ex. delete all resources in the namespace, then delete the namespace

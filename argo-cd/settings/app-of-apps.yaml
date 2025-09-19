@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: app-of-apps
-  namespace: argo-cd
+  namespace: argocd
   finalizers:
     - resources-finalizer.argo-cd.argoproj.io
 spec:
@@ -16,7 +16,7 @@ spec:
       include: "*.yaml"
   destination:
     server: https://kubernetes.default.svc
-    namespace: argo-cd
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true

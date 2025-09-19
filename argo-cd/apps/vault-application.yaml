@@ -6,7 +6,7 @@ metadata:
   finalizers:
     - resources-finalizer.argo-cd.argoproj.io
 spec:
-  project: app-of-apps
+  project: infra-project
   source:
     repoURL: https://helm.releases.hashicorp.com
     chart: vault

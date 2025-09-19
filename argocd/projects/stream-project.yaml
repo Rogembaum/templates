@@ -1,0 +1,95 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: stream-project
+  namespace: argocd
+  finalizers:
+    - argoproj.io/resources-finalizer
+spec:
+  description: "ArgoCD settings project for stream"
+  
+  sourceRepos:
+    - 'https://helm.releases.hashicorp.com'
+    - 'https://charts.external-secrets.io'
+  # Destinations (clusters and namespaces)
+  destinations:
+      - namespace: "stream-*"
+        server: "*"
+        name: "stream-*"
+  # Project roles
+  roles:
+    - name: admin
+      description: "Project administrator"
+      policies:
+        - p, proj:stream-project-1:admin, applications, *, stream-project-1/*, allow
+        - p, proj:stream-project-1:admin, repositories, *, *, allow
+        - p, proj:stream-project-1:admin, clusters, *, *, allow
+      groups:
+        - 'argocd-admins'
+    
+    - name: developer
+      description: "Project developer"
+      policies:
+        - p, proj:stream-project-1:developer, applications, get, stream-project-1/*, allow
+        - p, proj:stream-project-1:developer, applications, sync, stream-project-1/*, allow
+        - p, proj:stream-project-1:developer, applications, action/*, stream-project-1/*, allow
+      groups:
+        - 'argocd-developers'
+    
+    - name: readonly
+      description: "Read-only access"
+      policies:
+        - p, proj:stream-project-1:readonly, applications, get, stream-project-1/*, allow
+      groups:
+        - 'argocd-readonly'
+  
+  # Synchronization settings
+  syncWindows:
+    - kind: allow
+      schedule: '0 9 * * 1-5'  # Mon-Fri from 9:00
+      duration: '8h'
+      applications:
+        - 'stream-project-1/production-*'
+      namespaces:
+        - 'production'
+      clusters:
+        - 'https://external-cluster.example.com:6443'
+    
+    - kind: deny
+      schedule: '0 17 * * 1-5'  # Mon-Fri from 17:00
+      duration: '15h'
+      applications:
+        - 'stream-project-1/production-*'
+      namespaces:
+        - 'production'
+      clusters:
+        - 'https://external-cluster.example.com:6443'
+  
+  # Orphaned resources settings
+  orphanedResources:
+    warn: true
+    ignore:
+      - group: 'apps'
+        kind: 'Deployment'
+        name: 'legacy-app'
+      - group: ''
+        kind: 'Service'
+        name: 'old-service'
+      # System resources
+      - group: 'kube-system'
+        kind: 'Deployment'
+      - group: 'kube-system'
+        kind: 'Service'
+    # Resources from other operators
+      - group: 'monitoring.coreos.com'
+        kind: 'Prometheus'
+      - group: 'monitoring.coreos.com'
+        kind: 'ServiceMonitor'
+      # All resources in system namespaces
+      - group: ''
+        kind: 'Namespace'
+        name: 'kube-system'
+      - group: ''
+        kind: 'Namespace'
+        name: 'monitoring'
+

@@ -8,7 +8,12 @@ metadata:
 spec:
   description: "ArgoCD settings project for infrastructure"
   sourceRepos:
-    - 'https://github.com/Rogembaum/templates.git'  
+    # Git repositories
+    - 'https://github.com/Rogembaum/templates.git'
+    # Helm repositories
+    - 'https://helm.releases.hashicorp.com'
+    - 'https://charts.bitnami.com/bitnami'
+    - 'https://charts.external-secrets.io' 
   destinations:
       - namespace: "*"
         server: "*"

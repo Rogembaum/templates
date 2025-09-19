@@ -16,6 +16,9 @@ spec:
       - namespace: "stream-*"
         server: "*"
         name: "stream-*"
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
   # Project roles
   roles:
     - name: admin

@@ -113,8 +113,8 @@ spec:
       - PrunePropagationPolicy=foreground # Prune propagation policy:ex. first delete resources in the namespace, then delete the namespace
       - PruneLast=true # Prune last, ex. delete all resources in the namespace, then delete the namespace
       - RespectIgnoreDifferences=true # Respect ignore differences
-    ignoreDifferences:
-      - group: admissionregistration.k8s.io
-        kind: MutatingWebhookConfiguration
-        name: vault-agent-injector-cfg
-        # Ex. ignore differences in the vault-agent-injector-cfg cause Kubernetes will update the webhook configuration with a new CA bundle
+  ignoreDifferences:
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+      name: vault-agent-injector-cfg
+      # Ex. ignore differences in the vault-agent-injector-cfg cause Kubernetes will update the webhook configuration with a new CA bundle

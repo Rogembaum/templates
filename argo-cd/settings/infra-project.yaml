@@ -11,7 +11,7 @@ spec:
   sourceRepos:
     - 'https://helm.releases.hashicorp.com'
     - 'https://charts.external-secrets.io'
-    - 'https://gitlab.com/gitlab-org/charts/gitlab'
+    - 'oci://registry.gitlab.com/gitlab-org/charts/gitlab'
   # Destinations (clusters and namespaces)
   destinations:
       - namespace: "*"

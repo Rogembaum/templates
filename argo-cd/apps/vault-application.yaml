@@ -117,4 +117,6 @@ spec:
     - group: admissionregistration.k8s.io
       kind: MutatingWebhookConfiguration
       name: vault-agent-injector-cfg
-      # Ex. ignore differences in the vault-agent-injector-cfg cause Kubernetes will update the webhook configuration with a new CA bundle
+      jsonPointers:
+        - /webhooks/0/clientConfig/caBundle
+      # Ignore differences in the vault-agent-injector-cfg because Kubernetes automatically updates the webhook configuration with the actual CA bundle

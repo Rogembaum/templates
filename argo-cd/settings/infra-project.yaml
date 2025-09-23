@@ -11,6 +11,7 @@ spec:
   sourceRepos:
     - 'https://helm.releases.hashicorp.com'
     - 'https://charts.external-secrets.io'
+    - 'https://gitlab.com/gitlab-org/charts/gitlab'
   # Destinations (clusters and namespaces)
   destinations:
       - namespace: "*"
@@ -95,4 +96,8 @@ spec:
       - group: ''
         kind: 'Namespace'
         name: 'monitoring'
+      # Vault webhook configurations (managed by Kubernetes)
+      - group: 'admissionregistration.k8s.io'
+        kind: 'MutatingWebhookConfiguration'
+        name: 'vault-agent-injector-cfg'
 

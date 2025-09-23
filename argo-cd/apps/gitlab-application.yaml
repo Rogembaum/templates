@@ -8,7 +8,7 @@ metadata:
 spec:
   project: infra-project
   source:
-    repoURL: oci://registry.gitlab.com/gitlab-org/charts/gitlab
+    repoURL: https://registry.gitlab.com/gitlab-org/charts/gitlab
     chart: gitlab
     targetRevision: 9.4.0
     helm:

@@ -90,3 +90,11 @@ kubectl get po -A --all-namespaces -o json | jq  '.items[] | select(.status.reas
 
 # delete remove namespace status terminating
 NS=`kubectl get ns |grep Terminating | awk 'NR==1 {print $1}'` && kubectl get namespace "$NS" -o json   | tr -d "\n" | sed "s/\"finalizers\": \[[^]]\+\]/\"finalizers\": []/"   | kubectl replace --raw /api/v1/namespaces/$NS/finalize -f -
+
+# force finalize all Terminating namespaces
+for NS in $(kubectl get ns --no-headers | awk '$2=="Terminating"{print $1}'); do
+  kubectl get namespace "$NS" -o json \
+  | tr -d "\n" \
+  | sed 's/"finalizers": \[[^]]\+\]/"finalizers": []/' \
+  | kubectl replace --raw /api/v1/namespaces/"$NS"/finalize -f -
+done
